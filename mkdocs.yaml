@@ -1,4 +1,4 @@
-site_name: stzcpp
+site_name: standard-libraries
 dev_addr: '127.0.0.1:5555'
 
 docs_dir: docs
@@ -58,15 +58,14 @@ nav:
     - 38. Removed Modules                          : 'genres/38-removed-modules.md'
     - 39. Security Considerations                  : 'genres/39-security-considerations.md'
 
-  - Prior-art:
-    - Standard libraries:
-      - C         : 'prior-art/std-c.md'
-      - C++       : 'prior-art/std-cpp.md'
-      - Zig       : 'prior-art/std-zig.md'
-      - Rust      : 'prior-art/std-rust.md'
-      - Go        : 'prior-art/std-go.md'
-      - Python    : 'prior-art/std-python.md'
-      - Javascript: 'prior-art/std-js.md'
+  - Standard libraries:
+    - C         : 'prior-art/std-c.md'
+    - C++       : 'prior-art/std-cpp.md'
+    - Zig       : 'prior-art/std-zig.md'
+    - Rust      : 'prior-art/std-rust.md'
+    - Go        : 'prior-art/std-go.md'
+    - Python    : 'prior-art/std-python.md'
+    - Javascript: 'prior-art/std-js.md'
 
 markdown_extensions:
   - attr_list
