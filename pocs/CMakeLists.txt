@@ -24,6 +24,8 @@ foreach(path ${srcs})
     set_target_properties(${name} PROPERTIES LINKER_LANGUAGE C)
     set_target_properties(${name} PROPERTIES C_STANDARD      23)
 
+    target_link_libraries(${name} PRIVATE m)
+
     target_compile_options(${name}
         PRIVATE
             -O0
