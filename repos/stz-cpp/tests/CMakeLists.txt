@@ -1,6 +1,6 @@
 enable_testing()
 
-file(GLOB tests_subset   "test_*.cpp")
+file(GLOB tests_subset "test_*.cpp")
 
 list(APPEND
     test_paths
@@ -26,9 +26,7 @@ foreach(test_path ${test_paths})
             -ggdb
             -Wall
             -Wextra
-            # -fsanitize=address
             -fdiagnostics-color=always)
-    # target_link_options(${name} PRIVATE -fsanitize=address)
 
     add_test(
         NAME              ${name}

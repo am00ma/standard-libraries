@@ -33,7 +33,7 @@ target_sources(${name}
     BASE_DIRS
         include
     FILES
-        include/stz-cpp/types.hpp
+        include/stz-cpp/stz-cpp.hpp
         include/stz-cpp/test.hpp
 
 )
@@ -60,54 +60,7 @@ target_compile_options(${name}
         -ggdb
         -Wall
         -Wextra
-        # -fsanitize=address
         -fdiagnostics-color=always)
-# target_link_options(${name} PRIVATE -fsanitize=address)
-
-# =========================================================================
-#                      Installation
-# =========================================================================
-install(
-    TARGETS ${name}
-    EXPORT ${name}Targets
-    FILE_SET HEADERS
-)
-
-include(GNUInstallDirs)
-
-install(
-    EXPORT ${name}Targets
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${name}
-    NAMESPACE ${name}::
-)
-
-include(CMakePackageConfigHelpers)
-
-write_basic_package_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/${name}ConfigVersion.cmake
-    COMPATIBILITY ExactVersion
-)
-
-install(
-    FILES
-        cmake/${name}Config.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/${name}ConfigVersion.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${name}
-)
-
-configure_file(cmake/${name}.pc.in ${name}.pc @ONLY)
-
-install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/${name}.pc
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-)
-
-# Otherwise system does not pick it up
-install(
-    FILES ${CMAKE_CURRENT_BINARY_DIR}/${name}.pc
-    DESTINATION /usr/lib/pkgconfig
-)
-
 
 # =========================================================================
 #                      tests

@@ -4,7 +4,7 @@
 
 {{ read_csv('genres.csv', missingval="") }}
 
-1. Syntax
+1. Syntax/Introduction
 2. Builtin Functions
 3. Builtin Constants
 4. Builtin Types

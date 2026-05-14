@@ -4,6 +4,8 @@
 #include <regex.h> // regex_t, ...
 #include <stdio.h> // fprintf, stderr
 
+#define TEST_STRUCT TestStruct
+
 /* ---------------------------------------------------------------------------
  *  Printing
  * ------------------------------------------------------------------------- */
@@ -39,6 +41,8 @@ typedef struct
     regex_t     regex;
 
 } TestSuite;
+
+static TestSuite TEST_STRUCT = {};
 
 static inline bool test_case_filter(TestSuite* t)
 {
@@ -106,11 +110,8 @@ static inline int test_suite_finish(TestSuite* t)
 /* ---------------------------------------------------------------------------
  * Exposed API
  * ------------------------------------------------------------------------- */
-#define TEST_STRUCT StzTest
 
-#define TEST_SUITE(name)                                                                                               \
-    TestSuite TEST_STRUCT = {};                                                                                        \
-    test_suite_start(&TEST_STRUCT, name, argc > 1 ? argv[1] : 0);
+#define TEST_SUITE(name) test_suite_start(&TEST_STRUCT, name, argc > 1 ? argv[1] : 0);
 
 // Filter by test filter
 #define TEST_CASE(name)                                                                                                \
@@ -142,7 +143,7 @@ static inline int test_suite_finish(TestSuite* t)
 #define EXPECT_NEQ_FLOAT(a, b) EXPECT_CONDITION( (fabs((a) - (b)) < EXPECT_EPS), "%s (%f) == %s (%f)"    , #a, (a), #b, (b))
 
 // NOTE: Needs `_s` to print counted strings
-#define EXPECT_EQ_STR(a, b)    EXPECT_CONDITION(!(str_equal((a), (b))), "%s (%.*s) != %s (%.*s)", #a, _s((a)), #b, _s((b)))
-#define EXPECT_NEQ_STR(a, b)   EXPECT_CONDITION( (str_equal((a), (b))), "%s (%.*s) == %s (%.*s)", #a, _s((a)), #b, _s((b)))
+#define EXPECT_EQ_STR(a, b)    EXPECT_CONDITION(!(((a) == (b))), "%s (%.*s) != %s (%.*s)", #a, _s((a)), #b, _s((b)))
+#define EXPECT_NEQ_STR(a, b)   EXPECT_CONDITION( (((a) == (b))), "%s (%.*s) == %s (%.*s)", #a, _s((a)), #b, _s((b)))
 
 // clang-format on
