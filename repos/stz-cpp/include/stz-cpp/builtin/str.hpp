@@ -1,15 +1,65 @@
 #pragma once
 
-#include "stz-cpp/builtin/types.hpp"
+#include "stz-cpp/builtin/buf.hpp" // IWYU pragma: keep
+
+// --------------- Definition ---------------
 
 struct Str
 {
-    isize len;
-    char* buf;
+    isize len = 0;
+    char* buf = nullptr;
+
+    Str() = default;
+    Str(isize length, char* buffer);
+
+    // Construct from literal
+    template <usize N>
+    Str(const char (&s)[N]);
+
+    // Construct from char*
+    Str(char* chars);
+
+    // str_equal
+    bool operator==(Str s);
 };
 
-struct Str0
+// Shorthand for null string
+#define StrNull Str()
+
+// Using Str like an interface
+#define Str_(s)                                                                                                        \
+    (Str) { s.len, (char*)s.buf }
+
+// Check null-terminated
+#define IsNullTerm(s) ((s).buf[(s).len] == '\0')
+
+// Printing strings
+#define __(s) (int)(s.buf ? s.len : 0), (s.buf ? s.buf : "")
+
+// --------------- Implementation ---------------
+
+inline Str::Str(isize length, char* buffer)
+    : len(length),
+      buf(buffer)
 {
-    isize len;
-    char* buf;
-};
+}
+
+template <usize N>
+inline Str::Str(const char (&s)[N])
+    : len(N - 1),
+      buf((char*)s)
+{
+}
+
+inline Str::Str(char* s)
+    : len(static_cast<isize>(strlen(s))),
+      buf(s)
+{
+}
+
+inline bool Str::operator==(Str s)
+{
+    if (s.len != len) return false;
+    if (!len) return true;
+    return !strncmp(buf, s.buf, static_cast<usize>(len));
+}

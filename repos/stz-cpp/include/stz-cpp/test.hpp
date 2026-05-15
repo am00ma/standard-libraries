@@ -143,7 +143,7 @@ static inline int test_suite_finish(TestSuite* t)
 #define EXPECT_NEQ_FLOAT(a, b) EXPECT_CONDITION( (fabs((a) - (b)) < EXPECT_EPS), "%s (%f) == %s (%f)"    , #a, (a), #b, (b))
 
 // NOTE: Needs `_s` to print counted strings
-#define EXPECT_EQ_STR(a, b)    EXPECT_CONDITION(!(((a) == (b))), "%s (%.*s) != %s (%.*s)", #a, _s((a)), #b, _s((b)))
-#define EXPECT_NEQ_STR(a, b)   EXPECT_CONDITION( (((a) == (b))), "%s (%.*s) == %s (%.*s)", #a, _s((a)), #b, _s((b)))
+#define EXPECT_EQ_STR(a, b)    EXPECT_CONDITION(!(((a) == (b))), "%s (%.*s) != %s (%.*s)", #a, __((a)), #b, __((b)))
+#define EXPECT_NEQ_STR(a, b)   EXPECT_CONDITION( (((a) == (b))), "%s (%.*s) == %s (%.*s)", #a, __((a)), #b, __((b)))
 
 // clang-format on
