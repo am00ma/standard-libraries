@@ -17,9 +17,9 @@ enum class AllocFlags : int
 
 struct Buf
 {
-    isize len;
-    isize cap;
-    char* buf;
+    isize len = 0;
+    isize cap = 0;
+    char* buf = nullptr;
 
     // Default constructors that C already gives
     Buf() = default;
@@ -44,6 +44,10 @@ struct Buf
     isize Avail();
     bool  OnTop(void* buf, isize len);
 };
+
+#define buf_stack(name, capacity)                                                                                      \
+    char tempbuf__##name[(capacity)] = {};                                                                             \
+    Buf  name{0, (capacity), (char*)tempbuf__##name};
 
 // --------------- Implementation ---------------
 
@@ -76,7 +80,7 @@ inline char* Buf::Alloc(usize objsize, usize align, isize count, AllocFlags flag
 
 template <typename T>
 T* Buf::Make(isize count, AllocFlags flags)
-{ return static_cast<T*>(Alloc(sizeof(T), alignof(T), count, flags)); }
+{ return reinterpret_cast<T*>(Alloc(sizeof(T), alignof(T), count, flags)); }
 
 inline Buf::Buf(isize length, isize capacity, char* buffer)
     : len(length),

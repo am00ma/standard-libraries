@@ -35,11 +35,15 @@ SI void buf_free(Buf* b);
 // Allocation
 SI char* buf_alloc(Buf* b, usize objsize, usize align, isize count, AllocFlags flags);
 
-#define Make(b, type, n, flags) (type*)buf_alloc(b, sizeof(type), alignof(t), n, flags)
+#define Make(b, type, n, flags) (type*)buf_alloc(b, sizeof(type), alignof(type), n, flags)
 
 // Measurements
 SI isize buf_avail(Buf* b, usize objsize);
 SI bool  buf_ontop(Buf* b, void* buf, isize len);
+
+#define buf_stack(name, capacity)                                                                                      \
+    char tempbuf__##name[(capacity)] = {};                                                                             \
+    Buf  name                        = {.len = 0, .cap = (capacity), .buf = tempbuf__##name};
 
 // --------------- Implementation ---------------
 
