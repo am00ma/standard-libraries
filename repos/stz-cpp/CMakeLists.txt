@@ -36,6 +36,7 @@ target_sources(${name}
         include/stz-cpp/stz-cpp.hpp
         include/stz-cpp/test.hpp
 
+        include/stz-cpp/builtin/types.hpp
 )
 
 target_include_directories(${name}

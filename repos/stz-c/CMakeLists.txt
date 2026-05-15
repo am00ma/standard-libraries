@@ -36,6 +36,8 @@ target_sources(${name}
         include/stz-c/stz-c.h
         include/stz-c/test.h
 
+        include/stz-c/builtin/types.h
+
 )
 
 target_include_directories(${name}

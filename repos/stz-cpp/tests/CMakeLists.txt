@@ -1,10 +1,12 @@
 enable_testing()
 
-file(GLOB tests_subset "test_*.cpp")
+file(GLOB tests_base    "test_*.cpp")
+file(GLOB tests_builtin "builtin/test_*.cpp")
 
 list(APPEND
     test_paths
-    ${tests_subset}
+    ${tests_base}
+    ${tests_builtin}
 )
 
 foreach(test_path ${test_paths})
