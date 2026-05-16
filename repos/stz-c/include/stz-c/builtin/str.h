@@ -40,6 +40,8 @@ SI Str  str_sub(Str s, isize i, isize j);
 
 // --------------- Various helper structs ---------------
 
+DECLARE_RESULT(Str);
+
 DECLARE_ARRAY(Str);
 DECLARE_ARRAY(Arr_Str);
 
