@@ -6,5 +6,8 @@
 // Buf
 #include "stz-c/builtin/buf.h" // IWYU pragma: keep
 
-// Str, Str0
+// Str
 #include "stz-c/builtin/str.h" // IWYU pragma: keep
+
+// Print variants
+#include "stz-c/builtin/print.h" // IWYU pragma: keep

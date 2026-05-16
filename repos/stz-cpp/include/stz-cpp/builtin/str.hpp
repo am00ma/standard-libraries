@@ -31,8 +31,7 @@ struct Str
 #define StrNull Str()
 
 // Using Str like an interface
-#define Str_(s)                                                                                                        \
-    (Str) { s.len, (char*)s.buf }
+#define Str_(s) Str(s.len, (char*)s.buf)
 
 // Check null-terminated
 #define IsNullTerm(s) ((s).buf[(s).len] == '\0')
