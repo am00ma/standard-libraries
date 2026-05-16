@@ -2,7 +2,7 @@
 
 #include "stz-cpp/builtin/buf.hpp" // IWYU pragma: keep
 
-#include <assert.h>
+#include <cassert>
 
 template <typename T>
 struct Vec

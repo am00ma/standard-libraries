@@ -2,7 +2,7 @@
 
 #include "stz-cpp/builtin/buf.hpp"
 
-#include <assert.h>
+#include <cassert>
 
 template <typename T>
 struct Arr
@@ -11,7 +11,7 @@ struct Arr
     T*    buf;
 
     // Alloc from buffer
-    Arr<T>(Buf* b, isize count, AllocFlags flags);
+    Arr(Buf* b, isize count, AllocFlags flags);
 
     // Shrink given buffer
     void Shrink(Buf* b, isize newlen);

@@ -17,3 +17,6 @@
 
 // Str
 #include "stz-c/builtin/str.h" // IWYU pragma: keep
+
+// Arr
+#include "stz-c/builtin/arr.h" // IWYU pragma: keep

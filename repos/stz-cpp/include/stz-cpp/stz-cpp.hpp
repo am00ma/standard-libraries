@@ -17,3 +17,6 @@
 
 // Str
 #include "stz-cpp/builtin/str.hpp" // IWYU pragma: keep
+
+// Arr
+#include "stz-cpp/builtin/arr.hpp" // IWYU pragma: keep
