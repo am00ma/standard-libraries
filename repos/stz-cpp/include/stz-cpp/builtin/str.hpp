@@ -57,9 +57,14 @@ inline Str::Str(char* s)
 {
 }
 
+// str_equal cases:
+//   - Empty strings are equal: `"" == ""`
+//   - Null strings are equal: `StrNull == StrNull`
+//   - but empty != null: `"" != StrNull`
+//   - Non-null and non-empty strings must match at all bytes
 inline bool Str::operator==(Str s)
 {
     if (s.len != len) return false;
-    if (!len) return true;
+    if (!len) { return (buf && s.buf) || (!buf && !s.buf); }
     return !strncmp(buf, s.buf, static_cast<usize>(len));
 }

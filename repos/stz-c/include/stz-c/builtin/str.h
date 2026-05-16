@@ -46,9 +46,14 @@ SI Str str_new(Buf* b, isize len)
     };
 }
 
+// str_equal cases:
+//   - Empty strings are equal: `"" == ""`
+//   - Null strings are equal: `StrNull == StrNull`
+//   - but empty != null: `"" != StrNull`
+//   - Non-null and non-empty strings must match at all bytes
 SI bool str_equal(Str s1, Str s2)
 {
     if (s1.len != s2.len) { return false; }
-    if (s1.len == 0) { return true; }
+    if (s1.len == 0) { return (s1.buf && s2.buf) || (!s1.buf && !s2.buf); }
     return !memcmp(s1.buf, s2.buf, s1.len);
 }
