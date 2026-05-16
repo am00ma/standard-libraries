@@ -1,5 +1,6 @@
 #pragma once
 
+#include "stz-c/builtin/arr.h" // IWYU pragma: keep
 #include "stz-c/builtin/buf.h" // IWYU pragma: keep
 
 // --------------- Definition ---------------
@@ -36,6 +37,11 @@ typedef struct
 SI Str  str_new(Buf* b, isize len);
 SI bool str_equal(Str s1, Str s2);
 SI Str  str_sub(Str s, isize i, isize j);
+
+// --------------- Various helper structs ---------------
+
+DECLARE_ARRAY(Str);
+DECLARE_ARRAY(Arr_Str);
 
 // --------------- Implementation ---------------
 

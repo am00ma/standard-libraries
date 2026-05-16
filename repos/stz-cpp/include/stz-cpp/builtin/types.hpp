@@ -49,22 +49,3 @@ struct Res
     int err;
     T   data;
 };
-
-// --------------- Array ---------------
-
-template <typename T>
-struct Arr
-{
-    isize len;
-    T*    buf;
-};
-
-// --------------- Vector ---------------
-
-template <typename T>
-struct Vec
-{
-    isize len;
-    isize cap;
-    T*    buf;
-};

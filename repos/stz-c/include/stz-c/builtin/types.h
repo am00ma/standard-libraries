@@ -48,11 +48,11 @@ typedef void*       Any;
 typedef char*       Chars;
 typedef const char* CChars;
 
-// clang-format off
-
 // --------------- Result ---------------
 
 #define Res(T) CONCAT(Res_, T)
+
+// clang-format off
 
 #define DECLARE_RESULT(T) \
     typedef struct        \
@@ -60,28 +60,5 @@ typedef const char* CChars;
         int err;          \
         T   data;         \
     } Res(T);
-
-// --------------- Array ---------------
-
-#define Arr(T) CONCAT(Arr_, T)
-
-#define DECLARE_ARRAY(T) \
-    typedef struct       \
-    {                    \
-        isize len;       \
-        T*    buf;       \
-    } Arr(T);
-
-// --------------- Vector ---------------
-
-#define Vec(T) CONCAT(Vec_, T)
-
-#define DECLARE_VECTOR(T) \
-    typedef struct        \
-    {                     \
-        isize len;        \
-        isize cap;        \
-        T*    buf;        \
-    } Vec(T);
 
 // clang-format on
