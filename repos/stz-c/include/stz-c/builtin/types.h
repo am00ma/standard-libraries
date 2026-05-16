@@ -7,6 +7,8 @@
 
 // --------------- Essentials ---------------
 
+#define PrintFunc(fn, dst, fmt, ...) fn(dst, fmt, ##__VA_ARGS__)
+
 #define SI          static inline
 #define countof(a)  (isize)(sizeof(a) / sizeof(*(a)))
 #define lengthof(s) (countof(s) - 1)
@@ -24,6 +26,7 @@
 // Array primitives that may let us change `buf`, `len` names later
 #define AT(s, i) s.buf[i]
 #define LEN(s)   s.len
+
 // --------------- Primitives ---------------
 
 typedef uintptr_t uptr;

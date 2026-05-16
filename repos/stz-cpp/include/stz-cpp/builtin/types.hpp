@@ -7,6 +7,8 @@
 
 // --------------- Essentials ---------------
 
+#define PrintFunc(fn, dst, fmt, ...) fn(dst, fmt, ##__VA_ARGS__)
+
 #define SI          static inline
 #define countof(a)  (isize)(sizeof(a) / sizeof(*(a)))
 #define lengthof(s) (countof(s) - 1)
