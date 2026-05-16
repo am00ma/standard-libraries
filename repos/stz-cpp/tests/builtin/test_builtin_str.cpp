@@ -62,5 +62,41 @@ int main(int argc, char* argv[])
         EXPECT_NEQ_STR(str_b, empty_a);
     }
 
+    TEST_CASE("str_sub")
+    {
+
+        struct
+        {
+            Str   src;
+            isize i;
+            isize j;
+            Str   exp;
+        } tests[] = {
+
+            // Empty source string
+            {"", -1, -1, StrNull},
+            {"", 0, 0, ""},
+            {"", 1, 1, StrNull},
+            {"", 1, 0, StrNull},
+            {"", 0, 1, StrNull},
+
+            // Single char
+            {"a", -1, -1, StrNull},
+            {"a", 0, 0, ""},
+            {"a", 0, 1, "a"},
+            {"a", 0, 2, StrNull},
+            {"a", 1, 0, StrNull},
+            {"a", 1, 1, ""},
+            {"a", 1, 2, StrNull},
+        };
+
+        RANGE(i, countof(tests))
+        {
+            auto t   = &tests[i];
+            Str  dst = t->src[t->i, t->j];
+            EXPECT_EQ_STR(dst, t->exp);
+        }
+    }
+
     return TEST_RESULTS();
 }

@@ -21,6 +21,10 @@ struct Str
 
     // str_equal
     bool operator==(Str s);
+
+    // indexing
+    char& operator[](isize i);
+    Str   operator[](isize i, isize j);
 };
 
 // Shorthand for null string
@@ -67,4 +71,13 @@ inline bool Str::operator==(Str s)
     if (s.len != len) return false;
     if (!len) { return (buf && s.buf) || (!buf && !s.buf); }
     return !strncmp(buf, s.buf, static_cast<usize>(len));
+}
+
+inline char& Str::operator[](isize i) { return buf[i]; }
+
+// Only positive indices, start inclusive, end exclusive
+inline Str Str::operator[](isize i, isize j)
+{
+    if ((i < 0) || (j > len) || (i > j)) { return StrNull; } // Bounds check
+    return (Str){j - i, &buf[i]};                            // Finally, the normal case (includes empty string)
 }

@@ -35,6 +35,7 @@ typedef struct
 
 SI Str  str_new(Buf* b, isize len);
 SI bool str_equal(Str s1, Str s2);
+SI Str  str_sub(Str s, isize i, isize j);
 
 // --------------- Implementation ---------------
 
@@ -56,4 +57,11 @@ SI bool str_equal(Str s1, Str s2)
     if (s1.len != s2.len) { return false; }
     if (s1.len == 0) { return (s1.buf && s2.buf) || (!s1.buf && !s2.buf); }
     return !memcmp(s1.buf, s2.buf, s1.len);
+}
+
+// Only positive indices, start inclusive, end exclusive
+SI Str str_sub(Str s, isize i, isize j)
+{
+    if ((i < 0) || (j > s.len) || (i > j)) { return StrNull; } // Bounds check
+    return (Str){j - i, &s.buf[i]};                            // Finally, the normal case (includes empty string)
 }

@@ -19,6 +19,7 @@
 #define COLOR_YELLOW "\033[0;33m"
 #define STYLE_TITLE  COLOR_YELLOW COLOR_BOLD COLOR_ITALIC COLOR_ULINE
 
+#define tlog_line(fmt, ...)             fprintf(stderr, fmt "\n", ##__VA_ARGS__)
 #define tlog_colorline(color, fmt, ...) fprintf(stderr, color fmt COLOR_RESET "\n", ##__VA_ARGS__)
 #define tlog_title(fmt, ...)            tlog_colorline(STYLE_TITLE, fmt, ##__VA_ARGS__)
 
