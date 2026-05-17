@@ -7,6 +7,7 @@
 // ISEQUAL(T)
 // ISEMPTY(T)
 // ISTOMB(T)
+// SETTOMB(T)
 
 // --------------- Definitions ---------------
 
@@ -97,7 +98,7 @@ SI int set_delete(Str)(SET(Str) * m, Str key)
     {
         i = hash64_msi_next(hash, m->exp, i);
         if (ISEMPTY(Str)(m->buf[i])) { return -1; }    // found empty slot
-        else if (ISTOMB(Str)(m->buf[i])) { continue; } // found gravestone
+        else if (ISTOMB(Str)(m->buf[i])) { continue; } // found tombstone
         else if (ISEQUAL(Str)(key, m->buf[i]))         // found matching key
         {
             SETTOMB(Str)(m->buf[i]); // insert tombstone

@@ -15,7 +15,7 @@
 // Generic hash function
 #define HASH64(T) CONCAT(Hash64_, T)
 
-// Generic equality, empty and tombstone, expected to be def as macro
+// Generic equality, empty, tombstone; expected to be def as macro
 #define ISEQUAL(T) CONCAT(IsEqual_, T)
 #define ISEMPTY(T) CONCAT(IsEmpty_, T)
 #define ISTOMB(T)  CONCAT(IsTomb_, T)
@@ -23,8 +23,6 @@
 
 // Mask, step, index
 SI int hash64_msi_next(u64 hash, int exp, int i);
-
-// Specialization for string
 
 // --------------- Specialization ---------------
 
@@ -46,7 +44,8 @@ SI int hash64_msi_next(u64 hash, int exp, int i)
     return (i + step) & mask;
 }
 
-// Specialization for string
+// --------------- Specialization for string ---------------
+
 SI u64 HASH64(Str)(Str s)
 {
     u64 h = FNV_64_OFFSET_BASIS;
