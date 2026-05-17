@@ -24,7 +24,7 @@ inline bool file_exists(Str path)
     struct stat info = {};
 
     int err = stat(path.buf, &info);
-    if (err != 0) return false;
+    if (err != 0) return false; // TODO: stat error != file does not exist
 
     return S_ISDIR(info.st_mode)    //
            || S_ISREG(info.st_mode) //
