@@ -7,12 +7,14 @@
 
 // --------------- Essentials ---------------
 
-#define PrintFunc(fn, dst, fmt, ...) fn(dst, fmt, ##__VA_ARGS__)
+// Attributes
+#define SI static inline
 
-#define SI          static inline
+// Functions
 #define countof(a)  (isize)(sizeof(a) / sizeof(*(a)))
 #define lengthof(s) (countof(s) - 1)
 
+// Iteration sugar
 #define RANGE(...)                 RANGEx(__VA_ARGS__, RANGE4, RANGE3, RANGE2, RANGE1)(__VA_ARGS__)
 #define RANGEx(a, b, c, d, e, ...) e
 #define RANGE1(i)                  for (isize i = 0; i < 1; i++)
@@ -20,12 +22,12 @@
 #define RANGE3(i, a, b)            for (isize i = (a); i < (b); i++)
 #define RANGE4(i, a, b, c)         for (isize i = (a); i < (b); i += (c))
 
+// Helpers for generics
 #define CONCAT_(a, b) a##b
 #define CONCAT(a, b)  CONCAT_(a, b)
 
-// Array primitives that may let us change `buf`, `len` names later
-#define AT(s, i) s.buf[i]
-#define LEN(s)   s.len
+// Defined in print, used in various places
+#define PrintFunc(fn, dst, fmt, ...) fn(dst, fmt, ##__VA_ARGS__)
 
 // --------------- Primitives ---------------
 
