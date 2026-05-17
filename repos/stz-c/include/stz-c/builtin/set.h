@@ -18,12 +18,14 @@
 #define set_insert(T) CONCAT(CONCAT(Set_, T), _insert)
 #define set_delete(T) CONCAT(CONCAT(Set_, T), _delete)
 
+// --------------- Example of specialization ---------------
+
 // Specialization for string
 typedef struct
 {
-    Str*  buf;
     isize len;
     isize exp; // Exponent to power of 2
+    Str*  buf;
 
 } SET(Str);
 
@@ -41,10 +43,10 @@ SI int      set_delete(Str)(SET(Str)* m, Str key);
 SI SET(Str) set_new(Str)(Buf* b, isize exp)
 {
     return (SET(Str)){
-        // ALLOC_ZERO needed to set .buf = 0 which marks empty slot
-        .buf = Make(b, Str, CapFromExp(exp), ALLOC_ZERO),
         .len = 0,
         .exp = exp,
+        // ALLOC_ZERO needed to set .buf = 0 which marks empty slot
+        .buf = Make(b, Str, CapFromExp(exp), ALLOC_ZERO),
     };
 }
 
@@ -94,9 +96,9 @@ SI int set_delete(Str)(SET(Str) * m, Str key)
     for (i32 i = hash;;)
     {
         i = hash64_msi_next(hash, m->exp, i);
-        if (ISEMPTY(Str)(m->buf[i])) { return -1; }     // found empty slot
-        else if (ISTOMB(Str)(m->buf[i])) { return -1; } // found gravestone
-        else if (ISEQUAL(Str)(key, m->buf[i]))          // found matching key
+        if (ISEMPTY(Str)(m->buf[i])) { return -1; }    // found empty slot
+        else if (ISTOMB(Str)(m->buf[i])) { continue; } // found gravestone
+        else if (ISEQUAL(Str)(key, m->buf[i]))         // found matching key
         {
             SETTOMB(Str)(m->buf[i]); // insert tombstone
             m->len--;

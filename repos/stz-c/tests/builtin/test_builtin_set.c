@@ -10,16 +10,33 @@ int main(int argc, char* argv[])
 
     TEST_CASE("sizeof") { EXPECT_EQ_LONG(sizeof(SET(Str)), 24L); }
 
-    TEST_CASE("set_new(T)(buf, exp)")
+    TEST_CASE("new, lookup, insert, delete")
     {
         Buf b = buf_new(1024);
 
-        SET(Str) set = set_new(Str)(&b, 4);
-        EXPECT_EQ_LONG(CapFromExp(set.exp), 16L);
+        SET(Str) m    = set_new(Str)(&b, 4);
+        Arr(Str) keys = arr_new(Str, &b, CapFromExp(m.exp), ALLOC_NOZERO);
+        RANGE(i, CapFromExp(m.exp)) { keys.buf[i] = str_fmt(&b, "key-%ld", i); }
 
-        Arr(Str) keys = arr_new(Str, &b, CapFromExp(set.exp), ALLOC_NOZERO);
-        EXPECT_EQ_LONG(keys.len, 16L);
-        // RANGE(i, CapFromExp(set.exp)) { keys.buf[i] = str_fmt(&b, "key-%ld", i); }
+        // Insert till capacity
+        RANGE(i, CapFromExp(m.exp)) { EXPECT_TRUE(set_insert(Str)(&m, keys.buf[i]) >= 0); }
+        EXPECT_FALSE(set_insert(Str)(&m, _("a")) >= 0);
+
+        // Check that all are found
+        RANGE(i, CapFromExp(m.exp)) { EXPECT_TRUE(set_lookup(Str)(&m, keys.buf[i]) >= 0); }
+        EXPECT_FALSE(set_lookup(Str)(&m, _("a")) >= 0);
+
+        // Check again, to make sure no mutation during lookup
+        RANGE(i, CapFromExp(m.exp)) { EXPECT_TRUE(set_lookup(Str)(&m, keys.buf[i]) >= 0); }
+        EXPECT_FALSE(set_lookup(Str)(&m, _("a")) >= 0);
+
+        // Delete all keys
+        RANGE(i, CapFromExp(m.exp)) { EXPECT_TRUE(set_delete(Str)(&m, keys.buf[i]) >= 0); }
+        EXPECT_FALSE(set_lookup(Str)(&m, _("a")) >= 0);
+
+        // Ensure all deleted
+        RANGE(i, CapFromExp(m.exp)) { EXPECT_FALSE(set_lookup(Str)(&m, keys.buf[i]) >= 0); }
+        EXPECT_FALSE(set_lookup(Str)(&m, _("a")) >= 0);
 
         buf_free(&b);
     }
