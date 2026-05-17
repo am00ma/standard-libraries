@@ -102,7 +102,8 @@ lbl_close:
 
 inline Res(u64) file_write(Str path, Str src, const char* mode)
 {
-    if (!file_exists(path)) return (Res(u64)){ENOENT, 0};
+    if (!path.buf || !path.len) return (Res(u64)){EBADF, 0};
+    if (!IsNullTerm(path)) return (Res(u64)){EBADF, 0};
 
     int err = 0;
 

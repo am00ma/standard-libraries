@@ -12,7 +12,7 @@
 bool     file_exists(Str path);
 Res<i64> file_size(Str path);
 Res<Str> file_read(Buf* b, Str path);
-Res<u64> file_write(Buf* b, Str path, Str text, const char* mode);
+Res<u64> file_write(Str path, Str text, const char* mode);
 
 // --------------- Implementations ---------------
 
@@ -102,7 +102,8 @@ lbl_close:
 
 inline Res<u64> file_write(Str path, Str src, const char* mode)
 {
-    if (!file_exists(path)) return {ENOENT, 0};
+    if (!path.buf || !path.len) return {EBADF, 0};
+    if (!IsNullTerm(path)) return {EBADF, 0};
 
     int err = 0;
 

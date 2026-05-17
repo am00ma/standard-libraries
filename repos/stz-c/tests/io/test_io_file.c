@@ -39,5 +39,28 @@ int main(int argc, char* argv[])
         buf_free(&b);
     }
 
+    TEST_CASE("file_write(path, text)")
+    {
+        Buf b = buf_new(1024 * 1024); // 1MB
+
+        Res(Str) res_r1 = {}; // Initial read result
+        Res(u64) res_w  = {}; // Write result
+        Res(Str) res_r2 = {}; // Final read result
+
+        res_r1 = file_read(&b, _(__FILE__));
+        EXPECT_EQ_INT(res_r1.err, 0);
+
+        res_w = file_write(_("/tmp/file_write_c"), res_r1.data, "w");
+        EXPECT_EQ_INT(res_w.err, 0);
+        EXPECT_EQ_LONG(res_w.data, (u64)res_r1.data.len);
+
+        res_r2 = file_read(&b, _("/tmp/file_write_c"));
+        EXPECT_EQ_INT(res_r2.err, 0);
+
+        EXPECT_EQ_STR(res_r1.data, res_r2.data);
+
+        buf_free(&b);
+    }
+
     return TEST_RESULTS();
 }
