@@ -30,6 +30,7 @@ struct Buf
     Buf(Buf* src, isize capacity, AllocFlags flags);
 
     // 'Destructors'
+    void Shrink(Buf* src);
     void Reset();
     void Free();
 
@@ -107,6 +108,12 @@ inline Buf::Buf(Buf* src, isize capacity, AllocFlags flags)
 {
     buf = src->Make<char>(capacity, flags);
     cap = buf ? capacity : 0;
+}
+
+inline void Buf::Shrink(Buf* src)
+{
+    src->len -= cap - len;
+    cap       = len;
 }
 
 inline void Buf::Reset() { len = 0; }

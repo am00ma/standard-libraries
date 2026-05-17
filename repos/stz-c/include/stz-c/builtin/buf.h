@@ -29,6 +29,7 @@ SI Buf buf_new(isize cap);
 SI Buf buf_new2(Buf* b, isize cap, AllocFlags flags);
 
 // 'Destructors'
+SI void buf_shrink(Buf* src, Buf* sub);
 SI void buf_reset(Buf* b);
 SI void buf_free(Buf* b);
 
@@ -88,6 +89,12 @@ SI Buf buf_new2(Buf* b, isize cap, AllocFlags flags)
     dst.len = 0;
     dst.cap = dst.buf ? cap : 0;
     return dst;
+}
+
+SI void buf_shrink(Buf* src, Buf* sub)
+{
+    src->len -= sub->cap - sub->len;
+    sub->cap  = sub->len;
 }
 
 SI void buf_reset(Buf* b) { b->len = 0; }
