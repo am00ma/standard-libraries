@@ -37,6 +37,14 @@ target_sources(${name}
         include/stz-cpp/test.hpp
 
         include/stz-cpp/builtin/types.hpp
+        include/stz-cpp/builtin/print.hpp
+        include/stz-cpp/builtin/errors.hpp
+        include/stz-cpp/builtin/buf.hpp
+        include/stz-cpp/builtin/str.hpp
+        include/stz-cpp/builtin/arr.hpp
+        include/stz-cpp/builtin/res.hpp
+        include/stz-cpp/builtin/print_gen.hpp
+        include/stz-cpp/builtin/hash.hpp
 )
 
 target_include_directories(${name}

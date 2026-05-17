@@ -37,6 +37,14 @@ target_sources(${name}
         include/stz-c/test.h
 
         include/stz-c/builtin/types.h
+        include/stz-c/builtin/print.h
+        include/stz-c/builtin/errors.h
+        include/stz-c/builtin/buf.h
+        include/stz-c/builtin/str.h
+        include/stz-c/builtin/arr.h
+        include/stz-c/builtin/res.h
+        include/stz-c/builtin/print_gen.h
+        include/stz-c/builtin/hash.h
 
 )
 

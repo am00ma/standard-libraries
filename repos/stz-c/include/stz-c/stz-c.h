@@ -23,3 +23,6 @@
 
 // PrintVar
 #include "stz-c/builtin/print_gen.h" // IWYU pragma: keep
+
+// Hash
+#include "stz-c/builtin/hash.h" // IWYU pragma: keep
