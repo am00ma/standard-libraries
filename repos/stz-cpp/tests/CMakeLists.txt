@@ -2,11 +2,13 @@ enable_testing()
 
 file(GLOB tests_base    "test_*.cpp")
 file(GLOB tests_builtin "builtin/test_*.cpp")
+file(GLOB tests_io      "io/test_*.cpp")
 
 list(APPEND
     test_paths
     ${tests_base}
     ${tests_builtin}
+    ${tests_io}
 )
 
 foreach(test_path ${test_paths})

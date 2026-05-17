@@ -40,12 +40,3 @@ typedef double   f64;
 typedef void*       Any;
 typedef char*       Chars;
 typedef const char* CChars;
-
-// --------------- Result ---------------
-
-template <typename T>
-struct Res
-{
-    int err;
-    T   data;
-};

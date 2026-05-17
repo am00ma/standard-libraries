@@ -47,18 +47,3 @@ typedef double   f64;
 typedef void*       Any;
 typedef char*       Chars;
 typedef const char* CChars;
-
-// --------------- Result ---------------
-
-#define Res(T) CONCAT(Res_, T)
-
-// clang-format off
-
-#define DECLARE_RESULT(T) \
-    typedef struct        \
-    {                     \
-        int err;          \
-        T   data;         \
-    } Res(T);
-
-// clang-format on

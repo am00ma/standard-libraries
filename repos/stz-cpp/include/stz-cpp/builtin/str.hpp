@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stz-cpp/builtin/buf.hpp" // IWYU pragma: keep
+#include "stz-cpp/builtin/buf.hpp"
 
 // --------------- Definition ---------------
 
@@ -18,6 +18,9 @@ struct Str
 
     // Construct from char*
     Str(char* chars);
+
+    // Construct from buffer
+    Str(Buf* b, isize length);
 
     // str_equal
     bool operator==(Str s);
@@ -57,6 +60,12 @@ inline Str::Str(const char (&s)[N])
 inline Str::Str(char* s)
     : len(static_cast<isize>(strlen(s))),
       buf(s)
+{
+}
+
+inline Str::Str(Buf* b, isize length)
+    : len(length),
+      buf(b->Make<char>(length, AllocFlags::NOZERO))
 {
 }
 

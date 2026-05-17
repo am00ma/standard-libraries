@@ -1,6 +1,7 @@
 #pragma once
 
-#include "stz-c/builtin/types.h"
+#include "stz-c/builtin/buf.h"
+#include "stz-c/builtin/str.h"
 
 #include <assert.h>
 
@@ -50,3 +51,6 @@ DECLARE_ARRAY(f64);
 DECLARE_ARRAY(Any);
 DECLARE_ARRAY(Chars);
 DECLARE_ARRAY(CChars);
+
+DECLARE_ARRAY(Str);
+DECLARE_ARRAY(Buf);

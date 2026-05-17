@@ -6,9 +6,6 @@
 // PrintLn, PrintInline, PrintError, ...
 #include "stz-c/builtin/print.h" // IWYU pragma: keep
 
-// PrintVar
-#include "stz-c/builtin/print_gen.h" // IWYU pragma: keep
-
 // OnError_...
 #include "stz-c/builtin/errors.h" // IWYU pragma: keep
 
@@ -20,3 +17,9 @@
 
 // Arr
 #include "stz-c/builtin/arr.h" // IWYU pragma: keep
+
+// Res
+#include "stz-c/builtin/res.h" // IWYU pragma: keep
+
+// PrintVar
+#include "stz-c/builtin/print_gen.h" // IWYU pragma: keep
