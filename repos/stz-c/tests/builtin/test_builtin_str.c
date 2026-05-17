@@ -92,11 +92,40 @@ int main(int argc, char* argv[])
 
         RANGE(i, countof(tests))
         {
-            tlog_title("%ld", i);
             auto t   = &tests[i];
             Str  dst = str_sub(t->src, t->i, t->j);
             EXPECT_EQ_STR(dst, t->exp);
         }
+    }
+
+    TEST_CASE("str_fmtn, str_fmt")
+    {
+        buf_stack(temp, 128);
+        memset(temp.buf, 'a', 128);
+
+        str_fmtn(&temp, 10, "hellohello");
+        EXPECT_EQ_LONG(temp.len, 10L);
+
+        buf_reset(&temp);
+        Str str3 = str_fmtn(&temp, 5, "hello");
+        EXPECT_FALSE(IsNullTerm(str3));
+        EXPECT_EQ_LONG(temp.len, 5L);
+
+        // Unexpected behaviour of snprintf
+        char buf[128];
+        memset(buf, 'a', 128);
+        EXPECT_EQ_INT(snprintf(buf, 128, "hello"), 5);
+        EXPECT_EQ_INT(buf[5], 0); // And not 'a'
+
+        // Leads to the following
+        buf_reset(&temp);
+        Str str4 = str_fmt(&temp, "hello");
+        EXPECT_TRUE(IsNullTerm(str4));
+        EXPECT_EQ_LONG(temp.len, 5L); // But buf is proper
+
+        buf_reset(&temp);
+        Str str5 = str_fmt(&temp, "hello: %03ld", 1L);
+        EXPECT_EQ_STR(str5, _("hello: 001"));
     }
 
     return TEST_RESULTS();

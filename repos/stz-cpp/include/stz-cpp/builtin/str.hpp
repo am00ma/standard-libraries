@@ -2,6 +2,12 @@
 
 #include "stz-cpp/builtin/buf.hpp"
 
+#include <cstdarg> // va_list, va_start, va_end
+#include <cstdio>  // vsnprintf TODO: Why stdio?
+
+// For some reason, clangd complains
+#define __builtin_c23_va_start(a, b)
+
 // --------------- Definition ---------------
 
 struct Str
@@ -28,7 +34,14 @@ struct Str
     // indexing
     char& operator[](isize i);
     Str   operator[](isize i, isize j);
+
+    // Memory management
+    Str Copy(Buf* b, bool null_terminated);
 };
+
+// Format strings
+SI Str str_fmtn(Buf* b, isize len, const char* fmt, ...) __attribute__((format(printf, 3, 4)));
+SI Str str_fmt(Buf* b, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
 
 // Shorthand for null string
 #define StrNull Str()
@@ -87,5 +100,41 @@ inline char& Str::operator[](isize i) { return buf[i]; }
 inline Str Str::operator[](isize i, isize j)
 {
     if ((i < 0) || (j > len) || (i > j)) { return StrNull; } // Bounds check
-    return (Str){j - i, &buf[i]};                            // Finally, the normal case (includes empty string)
+    return Str(j - i, &buf[i]);                              // Finally, the normal case (includes empty string)
+}
+
+inline Str Str::Copy(Buf* a, bool null_term)
+{
+    if (!len) return StrNull;                                            // Null case
+    Str c(len, a->Make<char>(len + (int)null_term, AllocFlags::NOZERO)); // Alloc
+    memcpy(c.buf, buf, static_cast<usize>(c.len));                       // Copy string
+    if (null_term) c.buf[c.len] = '\0'; // Set null if needed since we init with ARENA_NOZERO
+    return c;
+}
+
+SI Str str_fmtn(Buf* b, isize len, char const* fmt, ...)
+{
+    Str s(0, b->Make<char>(len, AllocFlags::NOZERO));
+
+    va_list arg;
+    va_start(arg, fmt);
+    s.len = vsnprintf(s.buf, static_cast<usize>(len), fmt, arg);
+    va_end(arg);
+
+    b->len -= (len - s.len);
+    return s;
+}
+
+SI Str str_fmt(Buf* b, char const* fmt, ...)
+{
+    isize len = b->Avail<char>();
+    Str   s(0, b->Make<char>(len, AllocFlags::NOZERO));
+
+    va_list arg;
+    va_start(arg, fmt);
+    s.len = vsnprintf(s.buf, static_cast<usize>(len), fmt, arg);
+    va_end(arg);
+
+    b->len -= (len - s.len);
+    return s;
 }
