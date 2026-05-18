@@ -28,7 +28,7 @@ Set<T>::Set(Buf* b, isize exponent)
     exp = exponent;
 
     // ALLOC_ZERO needed to set .buf = 0 which marks empty slot
-    buf = b->Make<Str>(CapFromExp(exponent), AllocFlags::ZERO);
+    buf = b->Make<T>(CapFromExp(exponent), AllocFlags::ZERO);
 }
 
 template <typename T>
@@ -87,7 +87,7 @@ int Set<T>::Delete(T key)
             SetTomb(buf[i]); // insert tombstone
             len--;
             return i;
-        } // found matching key
+        }
         if ((count++) >= len) { return -1; } // TODO: necessary? no slot found after full iteration
     }
 }
