@@ -1,4 +1,4 @@
-.PHONY: all configure install test docs clean vars
+.PHONY: all configure install test clean vars
 
 all:
 	cd repos/stz-c   && $(MAKE) all
@@ -23,4 +23,3 @@ clean:
 vars:
 	cd repos/stz-c   && $(MAKE) vars
 	cd repos/stz-cpp && $(MAKE) vars
-
