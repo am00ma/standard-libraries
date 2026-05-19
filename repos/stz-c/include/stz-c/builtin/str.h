@@ -93,8 +93,8 @@ SI Arr(Str) str_splitc(Buf* b, Str src, char sep, isize maxlen, StrSplitFlags fl
 SI Arr(Str) str_split_lines(Buf* b, Str src, isize maxlen, bool ignore_empty);
 
 // Iterators
-SI Str str_till_next(Str* src, char c);
-SI Str str_till_next2(Str* src, Str c);
+SI Str str_till_nextc(Str* src, char c);
+SI Str str_till_next(Str* src, Str c);
 
 // --------------- Implementation ---------------
 
@@ -317,7 +317,7 @@ SI Arr(Str) str_split_lines(Buf* b, Str src, isize maxlen, bool ignore_empty)
 
 // --------------- Iterator ---------------
 
-SI Str str_till_next(Str* src, char c)
+SI Str str_till_nextc(Str* src, char c)
 {
     char* start = src->buf;
     while ((src->buf[0] != c) && (src->len > 0))
@@ -332,7 +332,7 @@ SI Str str_till_next(Str* src, char c)
 }
 
 // BUG: Currently too complicated. Why? Could use auxiliary str_find func instead?
-SI Str str_till_next2(Str* src, Str s)
+SI Str str_till_next(Str* src, Str s)
 {
     isize pos = str_find(*src, s);
 

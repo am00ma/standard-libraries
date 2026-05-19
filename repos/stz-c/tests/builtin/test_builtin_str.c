@@ -281,7 +281,7 @@ int main(int argc, char* argv[])
         isize count = 0;
         while (src.len)
         {
-            word = str_till_next(&src, ' ');
+            word = str_till_nextc(&src, ' ');
             EXPECT_EQ_STR(word, expected[count]);
             count++;
         }
@@ -291,7 +291,7 @@ int main(int argc, char* argv[])
         count = 0;
         while (src.len)
         {
-            word = str_till_next(&src, ',');
+            word = str_till_nextc(&src, ',');
             count++;
         }
         EXPECT_EQ_LONG(count, 1L);
@@ -305,7 +305,7 @@ int main(int argc, char* argv[])
         count = 0;
         while (src2.len)
         {
-            word = str_till_next2(&src2, sep2);
+            word = str_till_next(&src2, sep2);
             EXPECT_EQ_STR(word, expected2[count]);
             count++;
         }
@@ -318,7 +318,7 @@ int main(int argc, char* argv[])
         count = 0;
         while (src3.len)
         {
-            word = str_till_next2(&src3, sep3);
+            word = str_till_next(&src3, sep3);
             EXPECT_EQ_STR(word, expected3[count]);
             count++;
         }
@@ -331,7 +331,7 @@ int main(int argc, char* argv[])
         count = 0;
         while (src4.len)
         {
-            word = str_till_next2(&src4, sep4);
+            word = str_till_next(&src4, sep4);
             EXPECT_EQ_STR(word, expected4[count]);
             count++;
         }
@@ -344,7 +344,7 @@ int main(int argc, char* argv[])
         count = 0;
         while (src5.len)
         {
-            word = str_till_next2(&src5, sep5);
+            word = str_till_next(&src5, sep5);
             EXPECT_EQ_STR(word, expected5[count]);
             count++;
         }
