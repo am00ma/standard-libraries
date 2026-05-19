@@ -128,7 +128,7 @@ int main(int argc, char* argv[])
         EXPECT_EQ_STR(str5, Str("hello: 001"));
     }
 
-    TEST_CASE("str_sub, str_startswith, str_endswith")
+    TEST_CASE("substrings")
     {
         Str s1 = "hello hi how are you";
 
@@ -142,6 +142,36 @@ int main(int argc, char* argv[])
         EXPECT_TRUE(s1.EndsWith(""));
         EXPECT_FALSE(s1.EndsWith(StrNull));
         EXPECT_TRUE(s1.EndsWith("you"));
+
+        EXPECT_EQ_LONG(s1.Find("hi"), 6L);
+        EXPECT_EQ_LONG(s1.Find(""), 0L);
+        EXPECT_EQ_LONG(s1.Find(StrNull), 0L);
+
+        Str e = "";
+
+        EXPECT_EQ_STR((e[0, 0]), Str(""));
+
+        EXPECT_TRUE(e.StartsWith(""));
+        EXPECT_FALSE(e.StartsWith(StrNull));
+
+        EXPECT_TRUE(e.EndsWith(""));
+        EXPECT_FALSE(e.EndsWith(StrNull));
+
+        EXPECT_EQ_LONG(e.Find(""), 0L);
+        EXPECT_EQ_LONG(e.Find(StrNull), 0L);
+
+        Str n = StrNull;
+
+        EXPECT_EQ_STR((n[0, 0]), StrNull);
+
+        EXPECT_FALSE(n.StartsWith(""));
+        EXPECT_TRUE(n.StartsWith(StrNull));
+
+        EXPECT_FALSE(n.EndsWith(""));
+        EXPECT_TRUE(n.EndsWith(StrNull));
+
+        EXPECT_EQ_LONG(n.Find(""), -1L);
+        EXPECT_EQ_LONG(n.Find(StrNull), 0L);
     }
 
     return TEST_RESULTS();

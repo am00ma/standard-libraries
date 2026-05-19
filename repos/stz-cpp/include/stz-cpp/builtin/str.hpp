@@ -39,6 +39,7 @@ struct Str
     Str   operator[](isize i, isize j);
     bool  StartsWith(Str prefix);
     bool  EndsWith(Str suffix);
+    isize Find(Str sub);
 };
 
 // Format strings
@@ -105,26 +106,7 @@ inline Str Str::Copy(Buf* a, bool null_term)
     return c;
 }
 
-inline char& Str::operator[](isize i) { return buf[i]; }
-
-// Only positive indices, start inclusive, end exclusive
-inline Str Str::operator[](isize i, isize j)
-{
-    assert((i >= 0) && (i <= j) && (j <= len)); // Bounds check
-    return Str(j - i, &buf[i]);                 // Finally, the normal case (includes empty string)
-}
-
-inline bool Str::StartsWith(Str prefix)
-{
-    if (len < prefix.len) return false;
-    return (*this)[0, prefix.len] == prefix;
-}
-
-inline bool Str::EndsWith(Str suffix)
-{
-    if (len < suffix.len) return false;
-    return (*this)[len - suffix.len, len] == suffix;
-}
+// --------------- Format ---------------
 
 SI Str str_fmtn(Buf* b, isize len, char const* fmt, ...)
 {
@@ -151,4 +133,39 @@ SI Str str_fmt(Buf* b, char const* fmt, ...)
 
     b->len -= (len - s.len);
     return s;
+}
+
+// --------------- Substrings ---------------
+
+inline char& Str::operator[](isize i) { return buf[i]; }
+
+inline Str Str::operator[](isize i, isize j)
+{
+    assert((i >= 0) && (i <= j) && (j <= len)); // Bounds check
+    return Str(j - i, &buf[i]);                 // Finally, the normal case (includes empty string)
+}
+
+inline bool Str::StartsWith(Str prefix)
+{
+    if (len < prefix.len) return false;
+    return (*this)[0, prefix.len] == prefix;
+}
+
+inline bool Str::EndsWith(Str suffix)
+{
+    if (len < suffix.len) return false;
+    return (*this)[len - suffix.len, len] == suffix;
+}
+
+inline isize Str::Find(Str sub)
+{
+    if (!buf) return (sub.buf ? -1 : 0); // If src is StrNull, only true if sub is also StrNull
+    if (!sub.len) return 0;              // Always finds StrNull, Empty string
+    if (sub.len > len) return -1;
+    RANGE(i, len)
+    {
+        if (!(buf[i] == sub.buf[0])) continue;
+        if (Str(sub.len, &buf[i]) == sub) { return i; }
+    }
+    return -1;
 }

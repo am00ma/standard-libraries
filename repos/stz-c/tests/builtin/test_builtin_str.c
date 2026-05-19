@@ -142,6 +142,36 @@ int main(int argc, char* argv[])
         EXPECT_TRUE(str_endswith(s1, _("")));
         EXPECT_FALSE(str_endswith(s1, StrNull));
         EXPECT_TRUE(str_endswith(s1, _("you")));
+
+        EXPECT_EQ_LONG(str_find(s1, _("hi")), 6L);
+        EXPECT_EQ_LONG(str_find(s1, _("")), 0L);
+        EXPECT_EQ_LONG(str_find(s1, StrNull), 0L);
+
+        Str e = _("");
+
+        EXPECT_EQ_STR(str_sub(e, 0, 0), _(""));
+
+        EXPECT_TRUE(str_startswith(e, _("")));
+        EXPECT_FALSE(str_startswith(e, StrNull));
+
+        EXPECT_TRUE(str_endswith(e, _("")));
+        EXPECT_FALSE(str_endswith(e, StrNull));
+
+        EXPECT_EQ_LONG(str_find(e, _("")), 0L);
+        EXPECT_EQ_LONG(str_find(e, StrNull), 0L);
+
+        Str n = StrNull;
+
+        EXPECT_EQ_STR(str_sub(n, 0, 0), StrNull);
+
+        EXPECT_FALSE(str_startswith(n, _("")));
+        EXPECT_TRUE(str_startswith(n, StrNull));
+
+        EXPECT_FALSE(str_endswith(n, _("")));
+        EXPECT_TRUE(str_endswith(n, StrNull));
+
+        EXPECT_EQ_LONG(str_find(n, _("")), -1L);
+        EXPECT_EQ_LONG(str_find(n, StrNull), 0L);
     }
 
     return TEST_RESULTS();

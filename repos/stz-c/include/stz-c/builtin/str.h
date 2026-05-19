@@ -83,6 +83,8 @@ SI Str str_copy(Buf* a, Str s, bool null_term)
     return c;
 }
 
+// --------------- Format ---------------
+
 SI Str str_fmtn(Buf* b, isize len, char const* fmt, ...)
 {
     Str s = {.len = 0, .buf = Make(b, char, len, ALLOC_NOZERO)};
@@ -110,7 +112,8 @@ SI Str str_fmt(Buf* b, char const* fmt, ...)
     return s;
 }
 
-// Only positive indices, start inclusive, end exclusive
+// --------------- Substrings ---------------
+
 SI Str str_sub(Str s, isize i, isize j)
 {
     assert((i >= 0) && (i <= j) && (j <= s.len)); // Bounds check
@@ -127,4 +130,17 @@ bool str_endswith(Str s1, Str suffix)
 {
     if (s1.len < suffix.len) return false;
     return str_equal(str_sub(s1, s1.len - suffix.len, s1.len), suffix);
+}
+
+isize str_find(Str s1, Str sub)
+{
+    if (!s1.buf) return (sub.buf ? -1 : 0); // If s1 is StrNull, only true if sub is also StrNull
+    if (!sub.len) return 0;                 // Always finds StrNull, Empty string
+    if (sub.len > s1.len) return -1;
+    RANGE(i, s1.len)
+    {
+        if (!(s1.buf[i] == sub.buf[0])) continue;
+        if (str_equal((Str){.buf = &s1.buf[i], .len = sub.len}, sub)) { return i; }
+    }
+    return -1;
 }
