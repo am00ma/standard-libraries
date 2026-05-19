@@ -358,32 +358,21 @@ inline Str Str::TillNext(char c)
     return dst;
 }
 
-inline Str Str::TillNext(Str c)
+inline Str Str::TillNext(Str s)
 {
-    if (!c.len || !c.buf) { return *this; }
-    char* start = buf;
-    while (len > 0)
+    isize pos = this->Find(s);
+
+    if (pos < 0)
     {
-        if (buf[0] != c.buf[0])
-        {
-            buf++;
-            len--;
-        }
-        else
-        {
-            if (Str(c.len, buf) == c) { goto return__; }
-            else
-            {
-                isize slen  = c.len < len ? c.len : len;
-                buf        += slen;
-                len        -= slen;
-            }
-        }
+        Str dst  = *this;
+        buf     += len;
+        len      = 0;
+        return dst;
     }
 
-return__:
-    Str dst  = {buf - start, start};
-    buf     += c.len * (len > 0); // TODO: This is most probably wrong
-    len     -= c.len * (len > 0);
+    Str dst  = {pos, buf};
+    buf     += (pos + s.len);
+    len     -= (pos + s.len);
+
     return dst;
 }

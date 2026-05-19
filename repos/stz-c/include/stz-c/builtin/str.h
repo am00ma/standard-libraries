@@ -33,10 +33,10 @@ DECLARE_ARRAY(Str);
 #define _c(s) (Str){strlen(s), s}
 
 // Using Str like an interface
-#define Str_(s) (Str){s.len, (char*)s.buf}
+#define Str_(s) (Str){(s).len, (char*)(s).buf}
 
 // Printing strings
-#define __(s) (int)(s.buf ? s.len : 0), (s.buf ? s.buf : "")
+#define __(s) (int)((s).buf ? (s).len : 0), ((s).buf ? (s).buf : "")
 
 // Check null-terminated: NOTE: Goes beyond buffer len
 #define IsNullTerm(s) ((s).buf[(s).len] == '\0')
@@ -332,32 +332,21 @@ SI Str str_till_next(Str* src, char c)
 }
 
 // BUG: Currently too complicated. Why? Could use auxiliary str_find func instead?
-SI Str str_till_next2(Str* src, Str c)
+SI Str str_till_next2(Str* src, Str s)
 {
-    if (!c.len || !c.buf) { return *src; }
-    char* start = src->buf;
-    while (src->len > 0)
+    isize pos = str_find(*src, s);
+
+    if (pos < 0)
     {
-        if (src->buf[0] != c.buf[0])
-        {
-            src->buf++;
-            src->len--;
-        }
-        else
-        {
-            if (str_equal((Str){c.len, src->buf}, c)) { goto return__; }
-            else
-            {
-                isize len  = c.len < src->len ? c.len : src->len;
-                src->buf  += len;
-                src->len  -= len;
-            }
-        }
+        Str dst   = *src;     // Return full string
+        src->buf += src->len; // Advance to end
+        src->len  = 0;
+        return dst;
     }
 
-return__:
-    Str dst   = {src->buf - start, start};
-    src->buf += c.len * (src->len > 0); // TODO: This is most probably wrong
-    src->len -= c.len * (src->len > 0);
+    Str dst   = {pos, src->buf};
+    src->buf += (pos + s.len);
+    src->len -= (pos + s.len);
+
     return dst;
 }
