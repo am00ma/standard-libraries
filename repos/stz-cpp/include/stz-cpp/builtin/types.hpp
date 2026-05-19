@@ -40,3 +40,13 @@ typedef double   f64;
 typedef void*       Any;
 typedef char*       Chars;
 typedef const char* CChars;
+
+// --------------- Utilities ---------------
+
+// Generic pair
+template <typename A, typename B>
+struct Pair
+{
+    A a;
+    B b;
+};

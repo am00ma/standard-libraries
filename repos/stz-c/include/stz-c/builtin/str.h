@@ -1,5 +1,6 @@
 #pragma once
 
+#include "stz-c/builtin/arr.h"
 #include "stz-c/builtin/buf.h"
 
 #include <stdarg.h> // va_list, va_start, va_end
@@ -13,6 +14,12 @@ typedef struct
     char* buf;
 
 } Str;
+
+// Key Value
+DECLARE_PAIR(Str, Str);
+
+// Array of strings
+DECLARE_ARRAY(Str);
 
 // clang-format off
 
@@ -71,6 +78,23 @@ typedef enum
 } StrTrimFlags;
 
 SI Str str_trim(Str src, StrTrimFlags flags);
+
+// Split
+typedef enum
+{
+    SPLIT_DEFAULT         = 0,
+    SPLIT_IGNORE_EMPTY    = 1U << 0,
+    SPLIT_SUBSTITUTE_NULL = 1U << 1,
+
+} StrSplitFlags;
+
+SI PAIR(Str, Str) str_split_pair(Str src, char sep, StrTrimFlags flags);
+SI Arr(Str) str_splitc(Buf* b, Str src, char sep, isize maxlen, StrSplitFlags flags);
+SI Arr(Str) str_split_lines(Buf* b, Str src, isize maxlen, bool ignore_empty);
+
+// Iterators
+SI Str str_till_next(Str* src, char c);
+SI Str str_till_next2(Str* src, Str c);
 
 // --------------- Implementation ---------------
 
@@ -209,4 +233,131 @@ SI Str str_trim(Str src, StrTrimFlags flags)
         .len = stop - start,
         .buf = &src.buf[start],
     };
+}
+
+// --------------- Split ---------------
+
+SI PAIR(Str, Str) str_split_pair(Str src, char sep, StrTrimFlags flags)
+{
+    if (!src.len) return (PAIR(Str, Str)){src, StrNull};
+
+    isize found = -1;
+    RANGE(i, src.len)
+    {
+        if (!(src.buf[i] == sep)) continue;
+        found = i;
+        break;
+    }
+
+    // If not found: Probably means key with no val
+    // e.g. with sep ':'
+    //      src is `hello ` instead of `hello: hi`
+    //      so return `hello`,``
+    if (found < 0) return (PAIR(Str, Str)){str_trim(src, flags), {}};
+
+    PAIR(Str, Str)
+    pair = {
+        .a = {.len = found, .buf = src.buf},
+        .b = {.len = src.len - found - 1, .buf = &src.buf[found + 1]},
+    };
+
+    pair.a = str_trim(pair.a, flags);
+    pair.b = str_trim(pair.b, flags);
+
+    return pair;
+}
+
+SI Arr(Str) str_splitc(Buf* b, Str src, char sep, isize maxlen, StrSplitFlags flags)
+{
+    if (maxlen == -1) maxlen = buf_avail(b, sizeof(Str));
+    if (!maxlen) return (Arr(Str)){};
+
+    char* start    = &src.buf[0];
+    Arr(Str) parts = {.len = maxlen, .buf = Make(b, Str, maxlen, ALLOC_NOZERO)};
+    isize count    = 0;
+    RANGE(i, src.len)
+    {
+        if (sep == src.buf[i])
+        {
+            isize len = &src.buf[i] - start;
+            if (len || !(flags & SPLIT_IGNORE_EMPTY))
+            {
+                parts.buf[count] = (Str){.buf = start, .len = len};
+                count++;
+                if (count >= maxlen) goto __done;
+            }
+            if (flags & SPLIT_SUBSTITUTE_NULL) src.buf[i] = '\0';
+            start = &src.buf[i] + 1; // Skip delimiter
+        }
+    }
+
+    if ((isize)(start - src.buf) <= src.len)
+    {
+        isize len = src.len - (start - src.buf);
+        if (len || !(flags & SPLIT_IGNORE_EMPTY))
+        {
+            parts.buf[count] = (Str){.buf = start, .len = len};
+            count++;
+        }
+    }
+
+__done:
+    parts.len  = count;
+    b->len    -= sizeof(Str) * (maxlen - count);
+
+    return parts;
+}
+
+SI Arr(Str) str_split_lines(Buf* b, Str src, isize maxlen, bool ignore_empty)
+{
+    if (maxlen == -1) maxlen = buf_avail(b, sizeof(Str));
+    StrSplitFlags flags = ignore_empty ? SPLIT_IGNORE_EMPTY : SPLIT_DEFAULT;
+    return str_splitc(b, src, '\n', maxlen, flags);
+}
+
+// --------------- Iterator ---------------
+
+SI Str str_till_next(Str* src, char c)
+{
+    char* start = src->buf;
+    while ((src->buf[0] != c) && (src->len > 0))
+    {
+        src->buf++;
+        src->len--;
+    }
+    Str dst   = {src->buf - start, start};
+    src->buf += src->len > 0;
+    src->len -= src->len > 0;
+    return dst;
+}
+
+// BUG: Currently too complicated. Why? Could use auxiliary str_find func instead?
+SI Str str_till_next2(Str* src, Str c)
+{
+    if (!c.len || !c.buf) { return *src; }
+    char* start = src->buf;
+    while (src->len > 0)
+    {
+        if (src->buf[0] != c.buf[0])
+        {
+            src->buf++;
+            src->len--;
+        }
+        else
+        {
+            if (str_equal((Str){c.len, src->buf}, c)) { goto return__; }
+            else
+            {
+                isize len  = c.len < src->len ? c.len : src->len;
+                src->buf  += len;
+                src->len  -= len;
+            }
+        }
+    }
+
+return__:
+    Str dst   = {src->buf - start, start};
+    src->buf += c.len * (src->len > 0); // TODO: This is most probably wrong
+    src->len -= c.len * (src->len > 0);
+    return dst;
 }

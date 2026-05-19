@@ -10,6 +10,8 @@ struct Arr
     isize len;
     T*    buf;
 
+    Arr() = default;
+
     // Alloc from buffer
     Arr(Buf* b, isize count, AllocFlags flags);
 

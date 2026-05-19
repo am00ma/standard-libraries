@@ -11,7 +11,7 @@
 
 // --------------- Definitions ---------------
 
-// Generic pair
+// Generic Map
 #define MAP(A, B) CONCAT(CONCAT(Map_, A), B)
 
 #define map_new(A, B)    CONCAT(CONCAT(CONCAT(Map_, A), B), _new)
@@ -19,21 +19,7 @@
 #define map_insert(A, B) CONCAT(CONCAT(CONCAT(Map_, A), B), _insert)
 #define map_delete(A, B) CONCAT(CONCAT(CONCAT(Map_, A), B), _delete)
 
-// Generic pair
-#define PAIR(A, B) CONCAT(CONCAT(Pair_, A), B)
-
-// Declaration of struct
-#define DECLARE_PAIR(A, B)                                                                                             \
-    typedef struct                                                                                                     \
-    {                                                                                                                  \
-        A a;                                                                                                           \
-        B b;                                                                                                           \
-    } PAIR(A, B);
-
 // --------------- Example of specialization ---------------
-
-// Key Value
-DECLARE_PAIR(Str, Str);
 
 // Specialization for string, string
 typedef struct

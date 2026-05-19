@@ -49,3 +49,14 @@ typedef double   f64;
 typedef void*       Any;
 typedef char*       Chars;
 typedef const char* CChars;
+
+// Generic pair
+#define PAIR(A, B) CONCAT(CONCAT(Pair_, A), B)
+
+// Declaration of struct
+#define DECLARE_PAIR(A, B)                                                                                             \
+    typedef struct                                                                                                     \
+    {                                                                                                                  \
+        A a;                                                                                                           \
+        B b;                                                                                                           \
+    } PAIR(A, B);

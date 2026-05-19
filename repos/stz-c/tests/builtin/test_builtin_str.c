@@ -185,5 +185,170 @@ int main(int argc, char* argv[])
         EXPECT_EQ_STR(str_trim(_("\n x  \n"), TRIM_DEFAULT | TRIM_NEWLINES), _("x"));
     }
 
+    TEST_CASE("Split")
+    {
+        buf_stack(b, 128);
+
+        // TODO: SPLIT_SUBSTITUTE_NULL
+        struct
+        {
+            Str           src;
+            isize         maxlen;
+            StrSplitFlags flags;
+            isize         expected;
+        } cases[] = {
+            {_(""), 0, 0, 0},
+            {_("a b c"), 8, SPLIT_DEFAULT, 3},
+            {_("a b c"), 2, SPLIT_DEFAULT, 2},
+            {_("a    b c"), 8, SPLIT_DEFAULT, 6},
+            {_("a    b c"), 8, SPLIT_IGNORE_EMPTY, 3},
+        };
+
+        RANGE(i, countof(cases))
+        {
+            buf_reset(&b);
+            Arr(Str) got = str_splitc(&b, cases[i].src, ' ', cases[i].maxlen, cases[i].flags);
+            EXPECT_EQ_LONG(got.len, cases[i].expected);
+            EXPECT_EQ_LONG(b.len, (cases[i].expected * (isize)sizeof(Str)));
+        }
+    }
+
+    TEST_CASE("Split lines")
+    {
+        buf_stack(b, 128);
+
+        // TODO: SPLIT_SUBSTITUTE_NULL
+        struct
+        {
+            Str   src;
+            bool  ignore;
+            isize expected;
+        } cases[] = {
+            {_(""), true, 0},
+            {_(""), false, 1},
+            {_("a\nb\nc"), false, 3},
+            {_("a\n\n\n\nb\nc"), false, 6},
+            {_("a\n\n\n\nb\nc"), true, 3},
+        };
+
+        RANGE(i, countof(cases))
+        {
+            buf_reset(&b);
+            Arr(Str) got = str_split_lines(&b, cases[i].src, -1, cases[i].ignore);
+            EXPECT_EQ_LONG(got.len, cases[i].expected);
+            EXPECT_EQ_LONG(b.len, (cases[i].expected * (isize)sizeof(Str)));
+        }
+    }
+
+    TEST_CASE("split_pair")
+    {
+        buf_stack(b, 128);
+
+        // clang-format off
+        struct
+        {
+            Str           src;
+            char           sep;
+            StrTrimFlags flags;
+            Str           exp_key;
+            Str           exp_val;
+        } cases[] = {
+            {StrNull,         ':', TRIM_DEFAULT, StrNull,  StrNull},
+            {_(""),           ':', TRIM_DEFAULT, _(""),    StrNull},
+            {_("abc"),        ':', TRIM_DEFAULT, _("abc"), StrNull},
+            {_("a:b c"),      ':', TRIM_DEFAULT, _("a"),   _("b c")},
+            {_("a:   b c"),   ':', TRIM_DEFAULT, _("a"),   _("b c")},
+            {_("a:   b c  "), ':', TRIM_DEFAULT, _("a"),   _("b c")},
+            {_("a:   b c  "), ':', TRIM_NONE,    _("a"),   _("   b c  ")},
+        };
+        // clang-format on
+
+        RANGE(i, countof(cases))
+        {
+            buf_reset(&b);
+            PAIR(Str, Str) got = str_split_pair(cases[i].src, cases[i].sep, cases[i].flags);
+            EXPECT_EQ_STR(got.a, cases[i].exp_key);
+            EXPECT_EQ_STR(got.b, cases[i].exp_val);
+        }
+    }
+
+    TEST_CASE("Iterator")
+    {
+        Str src        = _(" hello   hi ");
+        Str expected[] = {_(""), _("hello"), _(""), _(""), _("hi"), _("")};
+
+        Str   word  = {};
+        isize count = 0;
+        while (src.len)
+        {
+            word = str_till_next(&src, ' ');
+            EXPECT_EQ_STR(word, expected[count]);
+            count++;
+        }
+
+        src   = _(" hello   hi ");
+        word  = StrNull;
+        count = 0;
+        while (src.len)
+        {
+            word = str_till_next(&src, ',');
+            count++;
+        }
+        EXPECT_EQ_LONG(count, 1L);
+        EXPECT_EQ_STR(word, _(" hello   hi "));
+
+        Str src2        = _(" hello   hi ");
+        Str sep2        = _("hello");
+        Str expected2[] = {_(" "), _("   hi ")};
+
+        word  = StrNull;
+        count = 0;
+        while (src2.len)
+        {
+            word = str_till_next2(&src2, sep2);
+            EXPECT_EQ_STR(word, expected2[count]);
+            count++;
+        }
+
+        Str src3        = _(" hello   hi ");
+        Str sep3        = _("how");
+        Str expected3[] = {src3};
+
+        word  = StrNull;
+        count = 0;
+        while (src3.len)
+        {
+            word = str_till_next2(&src3, sep3);
+            EXPECT_EQ_STR(word, expected3[count]);
+            count++;
+        }
+
+        Str src4        = _(" hello   hi ");
+        Str sep4        = _("hi ");
+        Str expected4[] = {_(" hello   ")};
+
+        word  = StrNull;
+        count = 0;
+        while (src4.len)
+        {
+            word = str_till_next2(&src4, sep4);
+            EXPECT_EQ_STR(word, expected4[count]);
+            count++;
+        }
+
+        Str src5        = _(" hello   hi ");
+        Str sep5        = _("hi    ");
+        Str expected5[] = {src5};
+
+        word  = StrNull;
+        count = 0;
+        while (src5.len)
+        {
+            word = str_till_next2(&src5, sep5);
+            EXPECT_EQ_STR(word, expected5[count]);
+            count++;
+        }
+    }
+
     return TEST_RESULTS();
 }

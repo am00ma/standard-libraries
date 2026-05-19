@@ -1,5 +1,6 @@
 #pragma once
 
+#include "stz-cpp/builtin/arr.hpp"
 #include "stz-cpp/builtin/buf.hpp"
 
 #include <cstdarg> // va_list, va_start, va_end
@@ -61,7 +62,21 @@ struct Str
 
     Str Trim(TrimFlags flags);
 
-    //
+    // Split
+    enum class SplitFlags : i32
+    {
+        DEFAULT         = 0,
+        IGNORE_EMPTY    = 1U << 0,
+        SUBSTITUTE_NULL = 1U << 1,
+    };
+
+    Pair<Str, Str> SplitPair(char sep, TrimFlags flags);
+    Arr<Str>       SplitC(Buf* b, char sep, isize maxlen, SplitFlags flags);
+    Arr<Str>       SplitLines(Buf* b, isize maxlen, bool ignore_empty);
+
+    // Iterator -> Modifies source string!
+    Str TillNext(char c);
+    Str TillNext(Str c);
 };
 
 // Format strings
@@ -198,15 +213,18 @@ inline Str Str::Trim(TrimFlags flags)
 {
     if (!len) return *this;
 
+#define F2I(flag) static_cast<i32>(flag)
+#define I2F(flag) static_cast<SplitFlags>(flag)
+
     isize start = 0;
-    if (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::LEFT))
+    if (F2I(flags) & F2I(TrimFlags::LEFT))
     {
         RANGE(i, len)
         {
-            if ((buf[i] == ' ') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::SPACES))) continue;
-            else if ((buf[i] == '\t') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::TABS))) continue;
-            else if ((buf[i] == '\n') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::NEWLINES))) continue;
-            else if ((buf[i] == '\r') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::CRETURNS))) continue;
+            if ((buf[i] == ' ') && (F2I(flags) & F2I(TrimFlags::SPACES))) continue;
+            else if ((buf[i] == '\t') && (F2I(flags) & F2I(TrimFlags::TABS))) continue;
+            else if ((buf[i] == '\n') && (F2I(flags) & F2I(TrimFlags::NEWLINES))) continue;
+            else if ((buf[i] == '\r') && (F2I(flags) & F2I(TrimFlags::CRETURNS))) continue;
             else
             {
                 start = i;
@@ -216,14 +234,14 @@ inline Str Str::Trim(TrimFlags flags)
     }
 
     isize stop = len;
-    if (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::RIGHT))
+    if (F2I(flags) & F2I(TrimFlags::RIGHT))
     {
         for (isize i = len - 1; i >= 0; i--)
         {
-            if ((buf[i] == ' ') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::SPACES))) continue;
-            else if ((buf[i] == '\t') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::TABS))) continue;
-            else if ((buf[i] == '\n') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::NEWLINES))) continue;
-            else if ((buf[i] == '\r') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::CRETURNS))) continue;
+            if ((buf[i] == ' ') && (F2I(flags) & F2I(TrimFlags::SPACES))) continue;
+            else if ((buf[i] == '\t') && (F2I(flags) & F2I(TrimFlags::TABS))) continue;
+            else if ((buf[i] == '\n') && (F2I(flags) & F2I(TrimFlags::NEWLINES))) continue;
+            else if ((buf[i] == '\r') && (F2I(flags) & F2I(TrimFlags::CRETURNS))) continue;
             else
             {
                 stop = i + 1;
@@ -232,5 +250,140 @@ inline Str Str::Trim(TrimFlags flags)
         }
     }
 
+#undef F2I
+#undef I2F
+
     return Str(stop - start, &buf[start]);
+}
+
+// Rather specific buf common type of split that requires trimming
+inline Pair<Str, Str> Str::SplitPair(char sep, TrimFlags flags)
+{
+    if (!len) return {(*this), StrNull};
+
+    isize found = -1;
+    RANGE(i, len)
+    {
+        if (!(buf[i] == sep)) continue;
+        found = i;
+        break;
+    }
+
+    // If not found: Probably means key with no val
+    // e.g. with sep ':'
+    //      src is `hello ` instead of `hello: hi`
+    //      so return `hello`,``
+    if (found < 0) return {this->Trim(flags), {}};
+
+    Pair<Str, Str> pair = {
+        {found, buf},
+        {len - found - 1, &buf[found + 1]},
+    };
+
+    pair.a = pair.a.Trim(flags);
+    pair.b = pair.b.Trim(flags);
+
+    return pair;
+}
+
+// Support for various modes of splits
+inline Arr<Str> Str::SplitC(Buf* b, char sep, isize maxlen, SplitFlags flags)
+{
+    if (maxlen == -1) maxlen = b->Avail<Str>();
+    if (!maxlen) return {};
+
+    char*    start = &buf[0];
+    Arr<Str> parts(b, maxlen, AllocFlags::NOZERO);
+    isize    count = 0;
+
+#define F2I(flag) static_cast<i32>(flag)
+#define I2F(flag) static_cast<SplitFlags>(flag)
+
+    RANGE(i, len)
+    {
+        if (sep == buf[i])
+        {
+            isize slen = &buf[i] - start;
+            if (slen || !(F2I(flags) & F2I(SplitFlags::IGNORE_EMPTY)))
+            {
+                parts.buf[count] = Str(slen, start);
+                count++;
+                if (count >= maxlen) goto __done;
+            }
+            if (F2I(flags) & F2I(SplitFlags::SUBSTITUTE_NULL)) buf[i] = '\0';
+            start = &buf[i] + 1; // Skip delimiter
+        }
+    }
+
+    if ((isize)(start - buf) <= len)
+    {
+        isize slen = len - (start - buf);
+        if (len || !(F2I(flags) & F2I(SplitFlags::IGNORE_EMPTY)))
+        {
+            parts.buf[count] = Str(slen, start);
+            count++;
+        }
+    }
+
+#undef F2I
+#undef I2F
+
+__done:
+    parts.len  = count;
+    b->len    -= static_cast<i64>(sizeof(Str)) * (maxlen - count);
+
+    return parts;
+}
+
+// Split by newline with option to ignore
+inline Arr<Str> Str::SplitLines(Buf* b, isize maxlen, bool ignore_empty)
+{
+    SplitFlags flags = ignore_empty ? SplitFlags::IGNORE_EMPTY : SplitFlags::DEFAULT;
+    return this->SplitC(b, '\n', maxlen, flags);
+}
+
+// --------------- Iterator ---------------
+
+inline Str Str::TillNext(char c)
+{
+    char* start = buf;
+    while ((buf[0] != c) && (len > 0))
+    {
+        buf++;
+        len--;
+    }
+    Str dst  = {buf - start, start};
+    buf     += len > 0;
+    len     -= len > 0;
+    return dst;
+}
+
+inline Str Str::TillNext(Str c)
+{
+    if (!c.len || !c.buf) { return *this; }
+    char* start = buf;
+    while (len > 0)
+    {
+        if (buf[0] != c.buf[0])
+        {
+            buf++;
+            len--;
+        }
+        else
+        {
+            if (Str(c.len, buf) == c) { goto return__; }
+            else
+            {
+                isize slen  = c.len < len ? c.len : len;
+                buf        += slen;
+                len        -= slen;
+            }
+        }
+    }
+
+return__:
+    Str dst  = {buf - start, start};
+    buf     += c.len * (len > 0); // TODO: This is most probably wrong
+    len     -= c.len * (len > 0);
+    return dst;
 }

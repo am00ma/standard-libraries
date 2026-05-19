@@ -4,14 +4,6 @@
 
 // --------------- Definitions ---------------
 
-// Generic pair
-template <typename A, typename B>
-struct Pair
-{
-    A a;
-    B b;
-};
-
 // Generic map
 template <typename K, typename V>
 struct Map

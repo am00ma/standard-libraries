@@ -193,5 +193,173 @@ int main(int argc, char* argv[])
 #undef I2F
     }
 
+    TEST_CASE("Split")
+    {
+        buf_stack(b, 128);
+
+        using Sf = Str::SplitFlags;
+
+        // TODO: SPLIT_SUBSTITUTE_NULL
+        struct
+        {
+            Str             src;
+            isize           maxlen;
+            Str::SplitFlags flags;
+            isize           expected;
+        } cases[] = {
+            {"", 0, Sf::DEFAULT, 0},              //
+            {"a b c", 8, Sf::DEFAULT, 3},         //
+            {"a b c", 2, Sf::DEFAULT, 2},         //
+            {"a    b c", 8, Sf::DEFAULT, 6},      //
+            {"a    b c", 8, Sf::IGNORE_EMPTY, 3}, //
+        };
+
+        RANGE(i, countof(cases))
+        {
+            b.Reset();
+            Arr<Str> got = cases[i].src.SplitC(&b, ' ', cases[i].maxlen, cases[i].flags);
+            EXPECT_EQ_LONG(got.len, cases[i].expected);
+            EXPECT_EQ_LONG(b.len, (cases[i].expected * (isize)sizeof(Str)));
+        }
+    }
+
+    TEST_CASE("Split lines")
+    {
+        buf_stack(b, 128);
+
+        // TODO: SPLIT_SUBSTITUTE_NULL
+        struct
+        {
+            Str   src;
+            bool  ignore;
+            isize expected;
+        } cases[] = {
+            {"", true, 0},               //
+            {"", false, 1},              //
+            {"a\nb\nc", false, 3},       //
+            {"a\n\n\n\nb\nc", false, 6}, //
+            {"a\n\n\n\nb\nc", true, 3},  //
+        };
+
+        RANGE(i, countof(cases))
+        {
+            b.Reset();
+            Arr<Str> got = cases[i].src.SplitLines(&b, -1, cases[i].ignore);
+            EXPECT_EQ_LONG(got.len, cases[i].expected);
+            EXPECT_EQ_LONG(b.len, (cases[i].expected * (isize)sizeof(Str)));
+        }
+    }
+
+    TEST_CASE("split_pair")
+    {
+        buf_stack(b, 128);
+
+        using Tf = Str::TrimFlags;
+
+        // clang-format off
+        struct
+        {
+            Str           src;
+            char           sep;
+            Str::TrimFlags flags;
+            Str           exp_key;
+            Str           exp_val;
+        } cases[] = {
+            {StrNull,      ':', Tf::DEFAULT, StrNull, StrNull},
+            {"",           ':', Tf::DEFAULT, "",      StrNull},
+            {"abc",        ':', Tf::DEFAULT, "abc",   StrNull},
+            {"a:b c",      ':', Tf::DEFAULT, "a",     "b c"},
+            {"a:   b c",   ':', Tf::DEFAULT, "a",     "b c"},
+            {"a:   b c  ", ':', Tf::DEFAULT, "a",     "b c"},
+            {"a:   b c  ", ':', Tf::NONE,    "a",     "   b c  "},
+        };
+        // clang-format on
+
+        RANGE(i, countof(cases))
+        {
+            b.Reset();
+            Pair<Str, Str> got = cases[i].src.SplitPair(cases[i].sep, cases[i].flags);
+            EXPECT_EQ_STR(got.a, cases[i].exp_key);
+            EXPECT_EQ_STR(got.b, cases[i].exp_val);
+        }
+    }
+
+    TEST_CASE("Iterator")
+    {
+        Str src        = " hello   hi ";
+        Str expected[] = {"", "hello", "", "", "hi", ""};
+
+        Str   word  = {};
+        isize count = 0;
+        while (src.len)
+        {
+            word = src.TillNext(' ');
+            EXPECT_EQ_STR(word, expected[count]);
+            count++;
+        }
+
+        src   = " hello   hi ";
+        word  = StrNull;
+        count = 0;
+        while (src.len)
+        {
+            word = src.TillNext(',');
+            count++;
+        }
+        EXPECT_EQ_LONG(count, 1L);
+        EXPECT_EQ_STR(word, Str(" hello   hi "));
+
+        Str src2        = " hello   hi ";
+        Str sep2        = "hello";
+        Str expected2[] = {" ", "   hi "};
+
+        word  = StrNull;
+        count = 0;
+        while (src2.len)
+        {
+            word = src2.TillNext(sep2);
+            EXPECT_EQ_STR(word, expected2[count]);
+            count++;
+        }
+
+        Str src3        = " hello   hi ";
+        Str sep3        = "how";
+        Str expected3[] = {src3};
+
+        word  = StrNull;
+        count = 0;
+        while (src3.len)
+        {
+            word = src3.TillNext(sep3);
+            EXPECT_EQ_STR(word, expected3[count]);
+            count++;
+        }
+
+        Str src4        = " hello   hi ";
+        Str sep4        = "hi ";
+        Str expected4[] = {" hello   "};
+
+        word  = StrNull;
+        count = 0;
+        while (src4.len)
+        {
+            word = src4.TillNext(sep4);
+            EXPECT_EQ_STR(word, expected4[count]);
+            count++;
+        }
+
+        Str src5        = " hello   hi ";
+        Str sep5        = "hi    ";
+        Str expected5[] = {src5};
+
+        word  = StrNull;
+        count = 0;
+        while (src5.len)
+        {
+            word = src5.TillNext(sep5);
+            EXPECT_EQ_STR(word, expected5[count]);
+            count++;
+        }
+    }
     return TEST_RESULTS();
 }
