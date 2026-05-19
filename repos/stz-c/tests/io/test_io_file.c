@@ -26,13 +26,13 @@ int main(int argc, char* argv[])
         e   = _c(strerror(res.err));
         EXPECT_EQ_STR(e, _("No such file or directory"));
 
-        // // --------------- Directory ---------------
-        // // TODO: check it is not dir, else segfaults
-        //
-        // buf_reset(&b);
-        //
-        // res = file_read(&b, _("./"));
-        // PrintVarLn(res.data);
+        // --------------- Directory ---------------
+
+        buf_reset(&b);
+
+        res = file_read(&b, _("./"));
+        e   = _c(strerror(res.err));
+        EXPECT_EQ_STR(e, _("Bad file descriptor"));
 
         // --------------- Free ---------------
 
