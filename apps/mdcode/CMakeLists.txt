@@ -9,7 +9,7 @@ project(
     DESCRIPTION "Render code to/from markdown"
     LANGUAGES CXX)
 
-add_subdirectory(../../repos/stz-cpp/ ../../repos/stz-cpp/build/)
+add_subdirectory(../../repos/stz-cpp/ ./stz-cpp/)
 
 # =========================================================================
 #                       Binary: mdcode
