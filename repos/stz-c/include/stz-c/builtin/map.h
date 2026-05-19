@@ -12,7 +12,7 @@
 // --------------- Definitions ---------------
 
 // Generic Map
-#define MAP(A, B) CONCAT(CONCAT(Map_, A), B)
+#define Map(A, B) CONCAT(CONCAT(Map_, A), B)
 
 #define map_new(A, B)    CONCAT(CONCAT(CONCAT(Map_, A), B), _new)
 #define map_lookup(A, B) CONCAT(CONCAT(CONCAT(Map_, A), B), _lookup)
@@ -28,22 +28,22 @@ typedef struct
     isize exp; // Exponent to power of 2
     PAIR(Str, Str) * buf;
 
-} MAP(Str, Str);
+} Map(Str, Str);
 
 // clang-format off
 
-SI MAP(Str, Str) map_new(Str, Str)(Buf* b, isize exp);
-SI Str*          map_lookup(Str, Str)(MAP(Str, Str)* m, Str key);
-SI int           map_insert(Str, Str)(MAP(Str, Str)* m, Str key, Str val);
-SI int           map_delete(Str, Str)(MAP(Str, Str)* m, Str key);
+SI Map(Str, Str) map_new(Str, Str)(Buf* b, isize exp);
+SI Str*          map_lookup(Str, Str)(Map(Str, Str)* m, Str key);
+SI int           map_insert(Str, Str)(Map(Str, Str)* m, Str key, Str val);
+SI int           map_delete(Str, Str)(Map(Str, Str)* m, Str key);
 
 // clang-format on
 
 // --------------- Implementation ---------------
 
-SI MAP(Str, Str) map_new(Str, Str)(Buf* b, isize exp)
+SI Map(Str, Str) map_new(Str, Str)(Buf* b, isize exp)
 {
-    return (MAP(Str, Str)){
+    return (Map(Str, Str)){
         .len = 0,
         .exp = exp,
         // ALLOC_ZERO needed to set .buf = 0 which marks empty slot
@@ -51,7 +51,7 @@ SI MAP(Str, Str) map_new(Str, Str)(Buf* b, isize exp)
     };
 }
 
-SI Str* map_lookup(Str, Str)(MAP(Str, Str) * m, Str key)
+SI Str* map_lookup(Str, Str)(Map(Str, Str) * m, Str key)
 {
     if (!m->len) { return NULL; } // empty set
 
@@ -67,7 +67,7 @@ SI Str* map_lookup(Str, Str)(MAP(Str, Str) * m, Str key)
     }
 }
 
-SI int map_insert(Str, Str)(MAP(Str, Str) * m, Str key, Str val)
+SI int map_insert(Str, Str)(Map(Str, Str) * m, Str key, Str val)
 {
     if ((m->len + 1) > CapFromExp(m->exp)) { return -1; } // overflows capacity
 
@@ -89,7 +89,7 @@ SI int map_insert(Str, Str)(MAP(Str, Str) * m, Str key, Str val)
     }
 }
 
-SI int map_delete(Str, Str)(MAP(Str, Str) * m, Str key)
+SI int map_delete(Str, Str)(Map(Str, Str) * m, Str key)
 {
     if (!m->len) { return -1; } // empty set
 

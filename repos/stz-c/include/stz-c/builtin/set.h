@@ -12,7 +12,7 @@
 // --------------- Definitions ---------------
 
 // Generic set
-#define SET(T) CONCAT(Set_, T)
+#define Set(T) CONCAT(Set_, T)
 
 #define set_new(T)    CONCAT(CONCAT(Set_, T), _new)
 #define set_lookup(T) CONCAT(CONCAT(Set_, T), _lookup)
@@ -28,22 +28,22 @@ typedef struct
     isize exp; // Exponent to power of 2
     Str*  buf;
 
-} SET(Str);
+} Set(Str);
 
 // clang-format off
 
-SI SET(Str) set_new(Str)(Buf* b, isize exp);
-SI int      set_lookup(Str)(SET(Str)* m, Str key);
-SI int      set_insert(Str)(SET(Str)* m, Str key);
-SI int      set_delete(Str)(SET(Str)* m, Str key);
+SI Set(Str) set_new(Str)(Buf* b, isize exp);
+SI int      set_lookup(Str)(Set(Str)* m, Str key);
+SI int      set_insert(Str)(Set(Str)* m, Str key);
+SI int      set_delete(Str)(Set(Str)* m, Str key);
 
 // clang-format on
 
 // --------------- Implementation ---------------
 
-SI SET(Str) set_new(Str)(Buf* b, isize exp)
+SI Set(Str) set_new(Str)(Buf* b, isize exp)
 {
-    return (SET(Str)){
+    return (Set(Str)){
         .len = 0,
         .exp = exp,
         // ALLOC_ZERO needed to set .buf = 0 which marks empty slot
@@ -51,7 +51,7 @@ SI SET(Str) set_new(Str)(Buf* b, isize exp)
     };
 }
 
-SI int set_lookup(Str)(SET(Str) * m, Str key)
+SI int set_lookup(Str)(Set(Str) * m, Str key)
 {
     if (!m->len) { return -1; } // empty set
 
@@ -67,7 +67,7 @@ SI int set_lookup(Str)(SET(Str) * m, Str key)
     }
 }
 
-SI int set_insert(Str)(SET(Str) * m, Str key)
+SI int set_insert(Str)(Set(Str) * m, Str key)
 {
     if ((m->len + 1) > CapFromExp(m->exp)) { return -1; } // overflows capacity
 
@@ -88,7 +88,7 @@ SI int set_insert(Str)(SET(Str) * m, Str key)
     }
 }
 
-SI int set_delete(Str)(SET(Str) * m, Str key)
+SI int set_delete(Str)(Set(Str) * m, Str key)
 {
     if (!m->len) { return -1; } // empty set
 

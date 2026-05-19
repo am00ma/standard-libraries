@@ -8,13 +8,13 @@ int main(int argc, char* argv[])
 {
     TEST_SUITE("builtin/set.h");
 
-    TEST_CASE("sizeof") { EXPECT_EQ_LONG(sizeof(SET(Str)), 24L); }
+    TEST_CASE("sizeof") { EXPECT_EQ_LONG(sizeof(Set(Str)), 24L); }
 
     TEST_CASE("new, lookup, insert, delete")
     {
         Buf b = buf_new(1024);
 
-        SET(Str) m    = set_new(Str)(&b, 4);
+        Set(Str) m    = set_new(Str)(&b, 4);
         Arr(Str) keys = arr_new(Str, &b, CapFromExp(m.exp), ALLOC_NOZERO);
         RANGE(i, CapFromExp(m.exp)) { keys.buf[i] = str_fmt(&b, "key-%ld", i); }
 

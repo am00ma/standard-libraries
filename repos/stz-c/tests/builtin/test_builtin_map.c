@@ -8,13 +8,13 @@ int main(int argc, char* argv[])
 {
     TEST_SUITE("builtin/map.h");
 
-    TEST_CASE("sizeof") { EXPECT_EQ_LONG(sizeof(MAP(Str, Str)), 24L); }
+    TEST_CASE("sizeof") { EXPECT_EQ_LONG(sizeof(Map(Str, Str)), 24L); }
 
     TEST_CASE("new, lookup, insert, delete")
     {
         Buf b = buf_new(1024 * 1024); // MB
 
-        MAP(Str, Str) m = map_new(Str, Str)(&b, 4);
+        Map(Str, Str) m = map_new(Str, Str)(&b, 4);
 
         Arr(Str) keys = arr_new(Str, &b, CapFromExp(m.exp), ALLOC_NOZERO);
         Arr(Str) vals = arr_new(Str, &b, CapFromExp(m.exp), ALLOC_NOZERO);
