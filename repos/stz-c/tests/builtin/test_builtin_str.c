@@ -74,20 +74,20 @@ int main(int argc, char* argv[])
         } tests[] = {
 
             // Empty source string
-            {_(""), -1, -1, StrNull},
+            // {_(""), -1, -1, Error},
             {_(""), 0, 0, _("")},
-            {_(""), 0, 1, StrNull},
-            {_(""), 1, 0, StrNull},
-            {_(""), 1, 1, StrNull},
+            // {_(""), 0, 1, Error},
+            // {_(""), 1, 0, Error},
+            // {_(""), 1, 1, Error},
 
             // Single char
-            {_("a"), -1, -1, StrNull},
+            // {_("a"), -1, -1, Error},
             {_("a"), 0, 0, _("")},
             {_("a"), 0, 1, _("a")},
-            {_("a"), 0, 2, StrNull},
-            {_("a"), 1, 0, StrNull},
+            // {_("a"), 0, 2, Error},
+            // {_("a"), 1, 0, Error},
             {_("a"), 1, 1, _("")},
-            {_("a"), 1, 2, StrNull},
+            // {_("a"), 1, 2, Error},
         };
 
         RANGE(i, countof(tests))
@@ -126,6 +126,22 @@ int main(int argc, char* argv[])
         buf_reset(&temp);
         Str str5 = str_fmt(&temp, "hello: %03ld", 1L);
         EXPECT_EQ_STR(str5, _("hello: 001"));
+    }
+
+    TEST_CASE("str_sub, str_startswith, str_endswith")
+    {
+        Str s1 = _("hello hi how are you");
+
+        EXPECT_EQ_STR(str_sub(s1, 0, 0), _(""));
+        EXPECT_EQ_STR(str_sub(s1, 0, 5), _("hello"));
+
+        EXPECT_TRUE(str_startswith(s1, _("")));
+        EXPECT_FALSE(str_startswith(s1, StrNull));
+        EXPECT_TRUE(str_startswith(s1, _("hello")));
+
+        EXPECT_TRUE(str_endswith(s1, _("")));
+        EXPECT_FALSE(str_endswith(s1, StrNull));
+        EXPECT_TRUE(str_endswith(s1, _("you")));
     }
 
     return TEST_RESULTS();

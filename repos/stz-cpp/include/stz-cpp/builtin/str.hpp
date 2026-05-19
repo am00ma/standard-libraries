@@ -31,12 +31,14 @@ struct Str
     // str_equal
     bool operator==(Str s);
 
-    // indexing
-    char& operator[](isize i);
-    Str   operator[](isize i, isize j);
-
     // Memory management
     Str Copy(Buf* b, bool null_terminated);
+
+    // Substrings
+    char& operator[](isize i);
+    Str   operator[](isize i, isize j);
+    bool  StartsWith(Str prefix);
+    bool  EndsWith(Str suffix);
 };
 
 // Format strings
@@ -49,11 +51,11 @@ SI Str str_fmt(Buf* b, const char* fmt, ...) __attribute__((format(printf, 2, 3)
 // Using Str like an interface
 #define Str_(s) Str(s.len, (char*)s.buf)
 
-// Check null-terminated
-#define IsNullTerm(s) ((s).buf[(s).len] == '\0')
-
 // Printing strings
 #define __(s) (int)(s.buf ? s.len : 0), (s.buf ? s.buf : "")
+
+// Check null-terminated: NOTE: Goes beyond buffer len
+#define IsNullTerm(s) ((s).buf[(s).len] == '\0')
 
 // --------------- Implementation ---------------
 
@@ -94,15 +96,6 @@ inline bool Str::operator==(Str s)
     return !strncmp(buf, s.buf, static_cast<usize>(len));
 }
 
-inline char& Str::operator[](isize i) { return buf[i]; }
-
-// Only positive indices, start inclusive, end exclusive
-inline Str Str::operator[](isize i, isize j)
-{
-    if ((i < 0) || (j > len) || (i > j)) { return StrNull; } // Bounds check
-    return Str(j - i, &buf[i]);                              // Finally, the normal case (includes empty string)
-}
-
 inline Str Str::Copy(Buf* a, bool null_term)
 {
     if (!len) return StrNull;                                            // Null case
@@ -110,6 +103,27 @@ inline Str Str::Copy(Buf* a, bool null_term)
     memcpy(c.buf, buf, static_cast<usize>(c.len));                       // Copy string
     if (null_term) c.buf[c.len] = '\0'; // Set null if needed since we init with ARENA_NOZERO
     return c;
+}
+
+inline char& Str::operator[](isize i) { return buf[i]; }
+
+// Only positive indices, start inclusive, end exclusive
+inline Str Str::operator[](isize i, isize j)
+{
+    assert((i >= 0) && (i <= j) && (j <= len)); // Bounds check
+    return Str(j - i, &buf[i]);                 // Finally, the normal case (includes empty string)
+}
+
+inline bool Str::StartsWith(Str prefix)
+{
+    if (len < prefix.len) return false;
+    return (*this)[0, prefix.len] == prefix;
+}
+
+inline bool Str::EndsWith(Str suffix)
+{
+    if (len < suffix.len) return false;
+    return (*this)[len - suffix.len, len] == suffix;
 }
 
 SI Str str_fmtn(Buf* b, isize len, char const* fmt, ...)

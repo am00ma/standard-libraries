@@ -28,18 +28,17 @@ typedef struct
 // Using Str like an interface
 #define Str_(s) (Str){s.len, (char*)s.buf}
 
-// Check null-terminated
-#define IsNullTerm(s) ((s).buf[(s).len] == '\0')
-
 // Printing strings
 #define __(s) (int)(s.buf ? s.len : 0), (s.buf ? s.buf : "")
+
+// Check null-terminated: NOTE: Goes beyond buffer len
+#define IsNullTerm(s) ((s).buf[(s).len] == '\0')
 
 // clang-format on
 
 // Essentials
 SI Str  str_new(Buf* b, isize len);
 SI bool str_equal(Str s1, Str s2);
-SI Str  str_sub(Str s, isize i, isize j);
 
 // Memory management
 SI Str str_copy(Buf* b, Str s, bool null_terminated);
@@ -47,6 +46,11 @@ SI Str str_copy(Buf* b, Str s, bool null_terminated);
 // Format strings
 SI Str str_fmtn(Buf* b, isize len, const char* fmt, ...) __attribute__((format(printf, 3, 4)));
 SI Str str_fmt(Buf* b, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
+
+// Substrings
+SI Str  str_sub(Str s1, isize start, isize end);
+SI bool str_startswith(Str s1, Str prefix);
+SI bool str_endswith(Str s1, Str suffix);
 
 // --------------- Implementation ---------------
 
@@ -68,13 +72,6 @@ SI bool str_equal(Str s1, Str s2)
     if (s1.len != s2.len) { return false; }
     if (s1.len == 0) { return (s1.buf && s2.buf) || (!s1.buf && !s2.buf); }
     return !memcmp(s1.buf, s2.buf, s1.len);
-}
-
-// Only positive indices, start inclusive, end exclusive
-SI Str str_sub(Str s, isize i, isize j)
-{
-    if ((i < 0) || (j > s.len) || (i > j)) { return StrNull; } // Bounds check
-    return (Str){j - i, &s.buf[i]};                            // Finally, the normal case (includes empty string)
 }
 
 SI Str str_copy(Buf* a, Str s, bool null_term)
@@ -111,4 +108,23 @@ SI Str str_fmt(Buf* b, char const* fmt, ...)
 
     b->len -= (len - s.len);
     return s;
+}
+
+// Only positive indices, start inclusive, end exclusive
+SI Str str_sub(Str s, isize i, isize j)
+{
+    assert((i >= 0) && (i <= j) && (j <= s.len)); // Bounds check
+    return (Str){j - i, &s.buf[i]};               // Finally, the normal case (includes empty string)
+}
+
+bool str_startswith(Str s1, Str prefix)
+{
+    if (s1.len < prefix.len) return false;
+    return str_equal(str_sub(s1, 0, prefix.len), prefix);
+}
+
+bool str_endswith(Str s1, Str suffix)
+{
+    if (s1.len < suffix.len) return false;
+    return str_equal(str_sub(s1, s1.len - suffix.len, s1.len), suffix);
 }

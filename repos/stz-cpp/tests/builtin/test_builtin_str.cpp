@@ -74,20 +74,20 @@ int main(int argc, char* argv[])
         } tests[] = {
 
             // Empty source string
-            {"", -1, -1, StrNull},
+            // {"", -1, -1, Error},
             {"", 0, 0, ""},
-            {"", 1, 1, StrNull},
-            {"", 1, 0, StrNull},
-            {"", 0, 1, StrNull},
+            // {"", 1, 1, Error},
+            // {"", 1, 0, Error},
+            // {"", 0, 1, Error},
 
             // Single char
-            {"a", -1, -1, StrNull},
+            // {"a", -1, -1, Error},
             {"a", 0, 0, ""},
             {"a", 0, 1, "a"},
-            {"a", 0, 2, StrNull},
-            {"a", 1, 0, StrNull},
+            // {"a", 0, 2, Error},
+            // {"a", 1, 0, Error},
             {"a", 1, 1, ""},
-            {"a", 1, 2, StrNull},
+            // {"a", 1, 2, Error},
         };
 
         RANGE(i, countof(tests))
@@ -126,6 +126,22 @@ int main(int argc, char* argv[])
         temp.Reset();
         Str str5 = str_fmt(&temp, "hello: %03ld", 1L);
         EXPECT_EQ_STR(str5, Str("hello: 001"));
+    }
+
+    TEST_CASE("str_sub, str_startswith, str_endswith")
+    {
+        Str s1 = "hello hi how are you";
+
+        EXPECT_EQ_STR((s1[0, 0]), Str(""));
+        EXPECT_EQ_STR((s1[0, 5]), Str("hello"));
+
+        EXPECT_TRUE(s1.StartsWith(""));
+        EXPECT_FALSE(s1.StartsWith(StrNull)); // Null != Empty
+        EXPECT_TRUE(s1.StartsWith("hello"));
+
+        EXPECT_TRUE(s1.EndsWith(""));
+        EXPECT_FALSE(s1.EndsWith(StrNull));
+        EXPECT_TRUE(s1.EndsWith("you"));
     }
 
     return TEST_RESULTS();
