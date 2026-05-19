@@ -52,6 +52,26 @@ SI Str  str_sub(Str s1, isize start, isize end);
 SI bool str_startswith(Str s1, Str prefix);
 SI bool str_endswith(Str s1, Str suffix);
 
+// Trim
+typedef enum
+{
+    TRIM_NONE          = 0,
+    TRIM_LEFT          = 1U << 0,
+    TRIM_RIGHT         = 1U << 1,
+    TRIM_SPACES        = 1U << 2, // ' '
+    TRIM_TABS          = 1U << 3, // '\t'
+    TRIM_NEWLINES      = 1U << 4, // '\n'
+    TRIM_CRETURNS      = 1U << 5, // '\r'
+    TRIM_LEFTRIGHT     = TRIM_LEFT | TRIM_RIGHT,
+    TRIM_WHITESPACE    = TRIM_SPACES | TRIM_TABS | TRIM_NEWLINES | TRIM_CRETURNS,
+    TRIM_DEFAULT       = TRIM_LEFTRIGHT | TRIM_WHITESPACE,
+    TRIM_DEFAULT_LEFT  = TRIM_LEFT | TRIM_WHITESPACE,
+    TRIM_DEFAULT_RIGHT = TRIM_RIGHT | TRIM_WHITESPACE,
+
+} StrTrimFlags;
+
+SI Str str_trim(Str src, StrTrimFlags flags);
+
 // --------------- Implementation ---------------
 
 SI Str str_new(Buf* b, isize len)
@@ -143,4 +163,50 @@ isize str_find(Str s1, Str sub)
         if (str_equal((Str){.buf = &s1.buf[i], .len = sub.len}, sub)) { return i; }
     }
     return -1;
+}
+
+// --------------- Trim ---------------
+
+SI Str str_trim(Str src, StrTrimFlags flags)
+{
+    if (!src.len) return src;
+
+    isize start = 0;
+    if (flags & TRIM_LEFT)
+    {
+        RANGE(i, src.len)
+        {
+            if ((src.buf[i] == ' ') && (flags & TRIM_SPACES)) continue;
+            else if ((src.buf[i] == '\t') && (flags & TRIM_TABS)) continue;
+            else if ((src.buf[i] == '\n') && (flags & TRIM_NEWLINES)) continue;
+            else if ((src.buf[i] == '\r') && (flags & TRIM_CRETURNS)) continue;
+            else
+            {
+                start = i;
+                break;
+            }
+        }
+    }
+
+    isize stop = src.len;
+    if (flags & TRIM_RIGHT)
+    {
+        for (isize i = src.len - 1; i >= 0; i--)
+        {
+            if ((src.buf[i] == ' ') && (flags & TRIM_SPACES)) continue;
+            else if ((src.buf[i] == '\t') && (flags & TRIM_TABS)) continue;
+            else if ((src.buf[i] == '\n') && (flags & TRIM_NEWLINES)) continue;
+            else if ((src.buf[i] == '\r') && (flags & TRIM_CRETURNS)) continue;
+            else
+            {
+                stop = i + 1;
+                break;
+            }
+        }
+    }
+
+    return (Str){
+        .len = stop - start,
+        .buf = &src.buf[start],
+    };
 }

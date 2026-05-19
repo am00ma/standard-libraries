@@ -174,5 +174,24 @@ int main(int argc, char* argv[])
         EXPECT_EQ_LONG(n.Find(StrNull), 0L);
     }
 
+    TEST_CASE("Trim")
+    {
+
+        using Tf = Str::TrimFlags;
+#define F2I(flag) static_cast<i32>(flag)
+#define I2F(flag) static_cast<Tf>(flag)
+
+        EXPECT_EQ_STR(Str("\t x  \t").Trim(Tf::DEFAULT), Str("x"));
+        EXPECT_EQ_STR(Str("\n x  \n").Trim(I2F(F2I(Tf::LEFTRIGHT) | F2I(Tf::NEWLINES))), Str(" x  "));
+        EXPECT_EQ_STR(Str("\n x  \n").Trim(I2F(F2I(Tf::RIGHT) | F2I(Tf::NEWLINES))), Str("\n x  "));
+        EXPECT_EQ_STR(Str("\n x  \n").Trim(I2F(F2I(Tf::LEFT) | F2I(Tf::NEWLINES))), Str(" x  \n"));
+        EXPECT_EQ_STR(Str("\n x  \n").Trim(I2F(F2I(Tf::RIGHT) | F2I(Tf::SPACES) | F2I(Tf::NEWLINES))), Str("\n x"));
+        EXPECT_EQ_STR(Str("\n x  \n").Trim(I2F(F2I(Tf::LEFT) | F2I(Tf::SPACES) | F2I(Tf::NEWLINES))), Str("x  \n"));
+        EXPECT_EQ_STR(Str("\n x  \n").Trim(I2F(F2I(Tf::DEFAULT) | F2I(Tf::NEWLINES))), Str("x"));
+
+#undef F2I
+#undef I2F
+    }
+
     return TEST_RESULTS();
 }

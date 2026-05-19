@@ -174,5 +174,16 @@ int main(int argc, char* argv[])
         EXPECT_EQ_LONG(str_find(n, StrNull), 0L);
     }
 
+    TEST_CASE("Trim")
+    {
+        EXPECT_EQ_STR(str_trim(_("\t x  \t"), TRIM_DEFAULT), _("x"));
+        EXPECT_EQ_STR(str_trim(_("\n x  \n"), TRIM_LEFTRIGHT | TRIM_NEWLINES), _(" x  "));
+        EXPECT_EQ_STR(str_trim(_("\n x  \n"), TRIM_RIGHT | TRIM_NEWLINES), _("\n x  "));
+        EXPECT_EQ_STR(str_trim(_("\n x  \n"), TRIM_LEFT | TRIM_NEWLINES), _(" x  \n"));
+        EXPECT_EQ_STR(str_trim(_("\n x  \n"), TRIM_RIGHT | TRIM_SPACES | TRIM_NEWLINES), _("\n x"));
+        EXPECT_EQ_STR(str_trim(_("\n x  \n"), TRIM_LEFT | TRIM_SPACES | TRIM_NEWLINES), _("x  \n"));
+        EXPECT_EQ_STR(str_trim(_("\n x  \n"), TRIM_DEFAULT | TRIM_NEWLINES), _("x"));
+    }
+
     return TEST_RESULTS();
 }

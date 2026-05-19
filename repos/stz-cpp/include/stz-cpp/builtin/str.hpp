@@ -40,6 +40,28 @@ struct Str
     bool  StartsWith(Str prefix);
     bool  EndsWith(Str suffix);
     isize Find(Str sub);
+
+    // Trim
+    enum class TrimFlags : i32
+    {
+        NONE          = 0,
+        LEFT          = 1U << 0,
+        RIGHT         = 1U << 1,
+        SPACES        = 1U << 2, // ' '
+        TABS          = 1U << 3, // '\t'
+        NEWLINES      = 1U << 4, // '\n'
+        CRETURNS      = 1U << 5, // '\r'
+        LEFTRIGHT     = LEFT | RIGHT,
+        WHITESPACE    = SPACES | TABS | NEWLINES | CRETURNS,
+        DEFAULT       = LEFTRIGHT | WHITESPACE,
+        DEFAULT_LEFT  = LEFT | WHITESPACE,
+        DEFAULT_RIGHT = RIGHT | WHITESPACE,
+
+    };
+
+    Str Trim(TrimFlags flags);
+
+    //
 };
 
 // Format strings
@@ -168,4 +190,47 @@ inline isize Str::Find(Str sub)
         if (Str(sub.len, &buf[i]) == sub) { return i; }
     }
     return -1;
+}
+
+// --------------- Trim ---------------
+
+inline Str Str::Trim(TrimFlags flags)
+{
+    if (!len) return *this;
+
+    isize start = 0;
+    if (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::LEFT))
+    {
+        RANGE(i, len)
+        {
+            if ((buf[i] == ' ') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::SPACES))) continue;
+            else if ((buf[i] == '\t') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::TABS))) continue;
+            else if ((buf[i] == '\n') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::NEWLINES))) continue;
+            else if ((buf[i] == '\r') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::CRETURNS))) continue;
+            else
+            {
+                start = i;
+                break;
+            }
+        }
+    }
+
+    isize stop = len;
+    if (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::RIGHT))
+    {
+        for (isize i = len - 1; i >= 0; i--)
+        {
+            if ((buf[i] == ' ') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::SPACES))) continue;
+            else if ((buf[i] == '\t') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::TABS))) continue;
+            else if ((buf[i] == '\n') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::NEWLINES))) continue;
+            else if ((buf[i] == '\r') && (static_cast<i32>(flags) & static_cast<i32>(TrimFlags::CRETURNS))) continue;
+            else
+            {
+                stop = i + 1;
+                break;
+            }
+        }
+    }
+
+    return Str(stop - start, &buf[start]);
 }
